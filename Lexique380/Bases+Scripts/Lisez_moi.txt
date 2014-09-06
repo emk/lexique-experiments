@@ -1,0 +1,2 @@
+Nous conseillons de déplacer dans ce dossier votre fichiers Lexique3.txt
+Vous pourrez aussi y mettre vos scripts awk (.awk) ou perl (.pl)
