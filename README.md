@@ -4,6 +4,12 @@
 Université de Savoie.  SQLite 3 is a fast, local database.  IPython is a
 cool way to work with and visual scientific data.
 
+## Viewing the notebook online
+
+[A notebook with lots of interesting data][nb] is available via nbviewer.
+
+[nb]: http://nbviewer.ipython.org/github/emk/lexique-experiments/blob/master/French%20Vocabulary%20Frequency%20with%20Lexique.ipynb
+
 ## Running it
 
 You will need:
