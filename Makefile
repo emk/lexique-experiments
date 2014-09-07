@@ -7,6 +7,7 @@ lexique.txt: Lexique380/Bases+Scripts/Lexique380.txt
 # Create our MySQL database.
 lexique.sqlite3: createdb.sql lexique.txt
 	sqlite3 $@ < createdb.sql
+	python munge_data.py
 
 # Delete generated files.
 clean:
