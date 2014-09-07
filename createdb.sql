@@ -74,3 +74,21 @@ CREATE TABLE lemme_simple AS
 CREATE UNIQUE INDEX lemme_simple_lemme ON lemme_simple (lemme);
 CREATE INDEX lemme_simple_freqfilms2 ON lemme_simple (freqfilms2);
 CREATE INDEX lemme_simple_freqlivres ON lemme_simple (freqlivres);
+
+CREATE TABLE verbe AS
+  SELECT lemme,
+         CASE
+           WHEN lemme = 'aller' THEN 'aller'
+           WHEN lemme LIKE '%er' THEN 'er'
+           WHEN lemme LIKE '%ir' THEN 'ir'
+           WHEN lemme LIKE '%re' THEN 're'
+         END AS groupe,
+         SUM(freqfilms2) AS freqfilms2,
+         SUM(freqlivres) AS freqlivres
+    FROM lemme
+    WHERE cgram IN ('VER', 'AUX')
+    GROUP BY lemme;
+CREATE UNIQUE INDEX verbe_lemme ON verbe (lemme);
+CREATE INDEX verbe_groupe ON verbe (groupe);
+CREATE INDEX verbe_freqfilms2 ON verbe (freqfilms2);
+CREATE INDEX verbe_freqlivres ON verbe (freqlivres);

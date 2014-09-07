@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import sqlite3
 import brewer2mpl
+from IPython.display import HTML
 
 # Generate some pretty colors for plots. The defaults are horrible.
 colors = brewer2mpl.get_map('Dark2', 'Qualitative', 8).mpl_colors
