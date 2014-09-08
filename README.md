@@ -21,6 +21,8 @@ which will provide detailed information about regular verbs.
   Commons license, which you can find in that directory.
 - The [conjugation rules][fvcr] in `verbs-0-2-0.xml` are in the public
   domain, according to the SourceForge project page where I found them.
+- The `verb-prototypes.tsv` file is generated using both the Lexique
+  data and the conjugation rules.
 
 ## Running it
 
