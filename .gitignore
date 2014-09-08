@@ -1,3 +1,4 @@
 /.ipynb*
 /lexique.sqlite3
 /lexique.txt
+*.pyc
