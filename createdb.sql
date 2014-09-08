@@ -84,6 +84,7 @@ CREATE TABLE verbe AS
            WHEN lemme LIKE '%re' THEN 're'
          END AS groupe,
          CAST(NULL AS TEXT) AS prototype,
+         CAST(NULL AS TEXT) AS aux,
          SUM(freqfilms2) AS freqfilms2,
          SUM(freqlivres) AS freqlivres
     FROM lemme

@@ -45,10 +45,11 @@ for row in db.execute('SELECT lemme FROM verbe'):
     verb = row[0]
     for p in prototypes:
         if p.matches(verb):
-            verb_prototypes.append((p.label, verb))
+            verb_prototypes.append((p.label, p.aux, verb))
             break
 
 # Update all our our verb fields in one pass.
 print("Storing verb prototypes...", file=sys.stderr)
-db.executemany("UPDATE verbe SET prototype = ? WHERE lemme = ?", verb_prototypes)
+db.executemany("UPDATE verbe SET prototype = ?, aux = ? WHERE lemme = ?",
+               verb_prototypes)
 db.commit()
