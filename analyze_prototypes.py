@@ -35,6 +35,9 @@ class Conjugator(object):
     # Suffixes used by the present tense.
     PRESENT_SUFFIXES = ['s', 's', 't', 'ons', 'ez', 'ent']
 
+    # Suffixes used by the imperative.
+    IMPERATIVE_SUFFIXES = ['s', 'ons', 'ez']
+
     # Suffixes used by the simple past tense.  These may begin with
     # Unicode combining characters.
     SIMPLE_PAST_SUFFIXES = ['s', 's', 't', u'\u0302mes', u'\u0302tes', u'rent']
@@ -92,6 +95,9 @@ class Conjugator(object):
     def present_suffixes(self):
         return self._find_key('PRESENT_SUFFIXES')
 
+    def imperative_suffixes(self):
+        return self._find_key('IMPERATIVE_SUFFIXES')
+
     def simple_past_suffixes(self):
         return self._find_key('SIMPLE_PAST_SUFFIXES')
 
@@ -135,8 +141,11 @@ class Conjugator(object):
 
     # Generate imperative forms.
     def imperative(self, infinitive):
-        present = self.present(infinitive)
-        return [present[1], present[3], present[4]]
+        sing_r = self.singular_radicals(infinitive)
+        atonic_r = self.atonic_radicals(infinitive)
+        s = self.imperative_suffixes()
+        return self._forms([
+            (sing_r, s[0]), (atonic_r, s[1]), (atonic_r, s[2])])
 
     # Generate imperfect forms.
     def imperfect(self, infinitive):
@@ -240,14 +249,10 @@ class ErConjugator(Conjugator):
     SIMPLE_PAST_RADICAL = ''
 
     PRESENT_SUFFIXES = ['', 's', '', 'ons', 'ez', 'ent']
+    IMPERATIVE_SUFFIXES = ['', 'ons', 'ez']
     SIMPLE_PAST_SUFFIXES = ['ai', 'as', 'a', u'âmes', u'âtes', u'èrent']
     SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
       ['asse', 'asses', u'ât', 'assions', 'assiez', 'assent']
-
-    def imperative(self, infinitive):
-        inherited = super(ErConjugator, self).imperative(infinitive)
-        sing_r = self.singular_radicals(infinitive)
-        return [sing_r] + inherited[1:]
 
 @conjugates([u'.*e([lt])er'])
 class ElerConjugator(ErConjugator):
@@ -332,11 +337,8 @@ class RirConjugator(IrWithoutIssConjugator):
 
     # This works like a regular -er verb.
     PRESENT_SUFFIXES = ['', 's', '', 'ons', 'ez', 'ent']
-    def imperative(self, infinitive):
-        inherited = super(RirConjugator, self).imperative(infinitive)
-        sing_r = self.singular_radicals(infinitive)
-        return [sing_r] + inherited[1:]
-    
+    IMPERATIVE_SUFFIXES = ['', 'ons', 'ez']
+
 @conjugates([u'.*andre|.*endre|.*ondre|.*erdre|.*ordre|.*eurdre'])
 class ReConjugator(Conjugator):
     REMOVE = 're'
@@ -367,6 +369,11 @@ class DireConjugator(ReConjugator):
         inherited = super(DireConjugator, self).present(infinitive)
         inherited[4] = ['dites']
         return inherited
+
+    # Pick up our change to 'dites'.
+    def imperative(self, infinitive):
+        present = self.present(infinitive)
+        return [present[i] for i in [1,3,4]]
 
 @conjugates([u'.*suivre'])
 class SuivreConjugator(ReConjugator):
