@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# See http://french.about.com/od/grammar/a/irverbs_irregular.htm
+
 import re
 from conjugator import *
 
