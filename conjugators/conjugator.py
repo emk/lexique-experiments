@@ -31,6 +31,15 @@ class Conjugator(object):
     SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
       ['sse', 'sses', u'\u0302t', 'ssions', 'ssiez', 'ssent']
 
+    # Record the label under which we were registered.
+    def __init__(self, label=None):
+        self.label = label
+
+    # Return a reasonable name for this conjugator.
+    def name(self):
+        name = self.__class__.__name__.replace('Conjugator', '').lower()
+        return name or None
+
     # Search up the class hierarchy for the specified key.  If it is found,
     # optionally return a related key from the same level of the class
     # hierarchy.  This is used to search for radicals
@@ -196,6 +205,9 @@ class Conjugator(object):
 
 # Used by default for verb forms we don't handle yet.
 class UnimplementedConjugator(Conjugator):
+    def name(self):
+        return None
+
     def assert_matches_prototype(self, prototype):
         print("Unimplemented: %s (%s)" % (prototype.example, prototype.label))
         sys.exit(1)
@@ -207,6 +219,6 @@ BY_LABEL = defaultdict(UnimplementedConjugator)
 def conjugates(labels):
     def wrap(conjugator_class):
         for label in labels:
-            BY_LABEL[label] = conjugator_class()
+            BY_LABEL[label] = conjugator_class(label)
         return conjugator_class
     return wrap

@@ -7,6 +7,9 @@ from conjugator import *
 @conjugates([u'être', u'avoir', u'aller', u'.*faire', u'pouvoir', u'.*vouloir',
              u'.*savoir', u'.*devoir', u'falloir', u'.*valoir', 'faillir'])
 class IrregularConjugator(Conjugator):
+    def name(self):
+        return self.label
+
     def assert_matches_prototype(self, prototype):
         pass
 
@@ -14,4 +17,3 @@ class IrregularConjugator(Conjugator):
 @conjugates([u'.*pleuvoir', u'parfaire', u'.*raire', u'adirer|douer'])
 class DefectiveConjugator(IrregularConjugator):
     pass
-

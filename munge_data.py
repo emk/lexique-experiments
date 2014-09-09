@@ -5,6 +5,7 @@ from __future__ import print_function
 import sys
 import sqlite3
 import prototype
+import conjugators
 
 # Open our database.
 db = sqlite3.connect("lexique.sqlite3")
@@ -16,11 +17,12 @@ for row in db.execute('SELECT lemme FROM verbe'):
     verb = row[0]
     for p in prototype.PROTOTYPES:
         if p.matches(verb):
-            verb_prototypes.append((p.label, p.aux, verb))
+            conj = conjugators.BY_LABEL[p.label]
+            verb_prototypes.append((p.label, conj.name(), p.aux, verb))
             break
 
 # Update all our our verb fields in one pass.
 print("Storing verb prototypes...", file=sys.stderr)
-db.executemany("UPDATE verbe SET prototype = ?, aux = ? WHERE lemme = ?",
-               verb_prototypes)
+sql = "UPDATE verbe SET prototype = ?, conjugator = ?, aux = ? WHERE lemme = ?"
+db.executemany(sql, verb_prototypes)
 db.commit()
