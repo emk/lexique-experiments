@@ -244,6 +244,13 @@ class ErConjugator(Conjugator):
         sing_r = self.singular_radicals(infinitive)
         return [sing_r] + inherited[1:]
 
+@conjugates([u'.*e([lt])er'])
+class ElerConjugator(ErConjugator):
+    REMOVE = '([lt])er'
+    SINGULAR_RADICAL = '\\1\\1e'
+    TONIC_RADICAL = '\\1\\1'
+    FUTURE_RADICAL = '\\1\\1er'
+    
 @conjugates([u'.*ir'])
 class IrConjugator(Conjugator):
     REMOVE = 'r'

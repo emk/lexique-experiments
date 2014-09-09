@@ -31,10 +31,16 @@ class Prototype:
         return self.regex.match(infinitive)
 
     def generate_forms(self, attr):
+        # Extract any group named 'c' from our match, and use it replace '?'.
+        c = self.regex.search(self.infinitive).groupdict().get('c')
+        def sub(form):
+            if c: return form.replace('?', c)
+            return form
+
         forms = []
         for form in getattr(self, attr).split(','):
             alternatives = form.split('|')
-            forms.append([self.radical + a for a in alternatives])
+            forms.append([sub(self.radical + a) for a in alternatives])
         return forms
 
     def example_past_participles(self):
@@ -67,7 +73,7 @@ class Prototype:
 
     def example_subjunctive_imperfect(self):
         return self.generate_forms('simparfait')
-    
+
 # Load our verb prototypes from XML.
 _conjugator = ET.parse('verbs-0-2-0.xml').getroot()
 PROTOTYPES = [Prototype(p) for p in _conjugator.findall('Prototype')]
