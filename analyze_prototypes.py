@@ -100,10 +100,14 @@ class Conjugator(object):
 
     # General suffix application rules that simplify life elsewhere.
     def _apply_suffix(self, radical, suffix):
-        if re.search('g$', radical) and not re.search(u'^[ieéè]', suffix):
-            # Preserve 'g' sounds.
+        soft_vowels = u'^[ieéè]'
+        if re.search('g$', radical) and not re.search(soft_vowels, suffix):
+            # Preserve soft 'g' sounds.
             radical = radical + u'e'
-        elif re.search('d$', radical) and suffix == u't':
+        elif re.search('c$', radical) and not re.search(soft_vowels, suffix):
+            # Preserve soft 'c' sounds.
+            radical = re.sub('c$', u'ç', radical)
+        elif re.search('[dt]$', radical) and suffix == u't':
             # Assimilate trailing 't' suffixes.
             suffix = u''
         # Normalize Unicode to support simple_past_radicals which begin
@@ -218,12 +222,13 @@ def conjugates(labels):
 # We use this for verbs which are truly irregular.
 @conjugates([u'être', u'avoir', u'aller', u'.*faire', u'pouvoir', u'.*vouloir',
              u'.*savoir', u'.*devoir'])
+@conjugates([u'falloir']) # TODO: Defective verbs to handle later.
 class IrregularConjugator:
     def assert_matches_prototype(self, prototype):
         pass
 
 @conjugates([u'.*er', u'arriver|entrer|rentrer|rester|retomber|tomber',
-             u'.*ger'])
+             u'.*ger', u'.*cer'])
 class ErConjugator(Conjugator):
     REMOVE = 'er'
     PAST_PARTICIPLE = u'é'
@@ -250,7 +255,27 @@ class ElerConjugator(ErConjugator):
     SINGULAR_RADICAL = '\\1\\1e'
     TONIC_RADICAL = '\\1\\1'
     FUTURE_RADICAL = '\\1\\1er'
-    
+
+@conjugates([u'.*é([djlmnprsty])er'])
+class ErerConjugator(ErConjugator):
+    REMOVE = u'é([djlmnprsty])er'
+    SINGULAR_RADICAL = u'è\\1e'
+    TONIC_RADICAL = u'è\\1'
+
+@conjugates([u'.*e([mnprsv])er'])
+class EmerConjugator(ErConjugator):
+    REMOVE = 'e([mnprsv])er'
+    SINGULAR_RADICAL = u'è\\1e'
+    TONIC_RADICAL = u'è\\1'
+    FUTURE_RADICAL = u'è\\1er'
+
+@conjugates([u'.*ayer'])
+class AyerConjugator(ErConjugator):
+    REMOVE = 'yer'
+    SINGULAR_RADICAL = 'ie|ye'
+    TONIC_RADICAL = 'i|y'
+    FUTURE_RADICAL = 'ier|yer'
+
 @conjugates([u'.*ir'])
 class IrConjugator(Conjugator):
     REMOVE = 'r'
@@ -261,8 +286,13 @@ class IrConjugator(Conjugator):
     FUTURE_RADICAL = 'r'
     SIMPLE_PAST_RADICAL = ''
 
+class IrWithoutIssConjugator(IrConjugator):
+    REMOVE = 'ir'
+    ATONIC_RADICAL = ''
+    TONIC_RADICAL = ''
+
 @conjugates([u'.*voir|.*oir'])
-class VoirConjugator(IrConjugator):
+class VoirConjugator(IrWithoutIssConjugator):
     REMOVE = 'oir'
     PAST_PARTICIPLE = 'u'
     ATONIC_RADICAL = 'oy'
@@ -270,8 +300,8 @@ class VoirConjugator(IrConjugator):
     FUTURE_RADICAL = 'err'
     SIMPLE_PAST_RADICAL = 'i'
 
-@conjugates([u'.*venir'])
-class VenirConjugator(IrConjugator):
+@conjugates([u'.*venir', u'circonvenir|contrevenir|prévenir|subvenir|.*tenir'])
+class EnirConjugator(IrWithoutIssConjugator):
     REMOVE = 'enir'
     PAST_PARTICIPLE = 'enu'
     SINGULAR_RADICAL = 'ien'
@@ -287,6 +317,26 @@ class VenirConjugator(IrConjugator):
     SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
       ['nsse', 'nsses', u'\u0302nt', 'nssions', 'nssiez', 'nssent']
 
+@conjugates([u'partir'])
+class PatrirConjugator(IrWithoutIssConjugator):
+    REMOVE = 'tir'
+    SINGULAR_RADICAL = ''
+
+@conjugates([u'.*ouvrir|.*frir'])
+class RirConjugator(IrWithoutIssConjugator):
+    REMOVE = 'rir'
+    PAST_PARTICIPLE = 'ert'
+    SINGULAR_RADICAL = 're'
+    ATONIC_RADICAL = 'r'
+    TONIC_RADICAL = 'r'
+
+    # This works like a regular -er verb.
+    PRESENT_SUFFIXES = ['', 's', '', 'ons', 'ez', 'ent']
+    def imperative(self, infinitive):
+        inherited = super(RirConjugator, self).imperative(infinitive)
+        sing_r = self.singular_radicals(infinitive)
+        return [sing_r] + inherited[1:]
+    
 @conjugates([u'.*andre|.*endre|.*ondre|.*erdre|.*ordre|.*eurdre'])
 class ReConjugator(Conjugator):
     REMOVE = 're'
@@ -330,6 +380,29 @@ class CroireConjugator(ReConjugator):
     PAST_PARTICIPLE = 'u'
     ATONIC_RADICAL = 'oy'
     SIMPLE_PAST_RADICAL = 'u'
+
+@conjugates(['.*mettre'])
+class MettreConjugator(ReConjugator):
+    REMOVE = 'ettre'
+    PAST_PARTICIPLE = 'is'
+    SINGULAR_RADICAL = 'et'
+    SIMPLE_PAST_RADICAL = 'i'
+
+@conjugates([u'.*connaître|.*paraître'])
+class ConnaitreConjugator(ReConjugator):
+    REMOVE = u'aître'
+    PAST_PARTICIPLE = 'u'
+    SINGULAR_RADICAL = 'ai'
+    ATONIC_RADICAL = 'aiss'
+    TONIC_RADICAL = 'aiss'
+    SIMPLE_PAST_RADICAL = 'u'
+
+    # The orthographe rectifiée de 1990 drops the cirucmflex from this
+    # verb, removing this special case.
+    def present(self, infinitive):
+        inherited = super(ConnaitreConjugator, self).present(infinitive)
+        inherited[2][0] = re.sub('ait$', u'aît', inherited[2][0])
+        return inherited
 
 # Open our database.
 db = sqlite3.connect("lexique.sqlite3")
