@@ -261,6 +261,13 @@ class ElerConjugator(ErConjugator):
     TONIC_RADICAL = '\\1\\1'
     FUTURE_RADICAL = '\\1\\1er'
 
+@conjugates([u'acheter|bégueter|bouveter|breveter|caleter|corseter|crocheter|émoucheter|fileter|fureter|haleter|préacheter|racheter|.*éceter'])
+class EterConjugator(ErConjugator):
+    REMOVE = 'eter'
+    SINGULAR_RADICAL = u'ète'
+    TONIC_RADICAL = u'èt'
+    FUTURE_RADICAL = u'èter'
+
 @conjugates([u'.*é([djlmnprsty])er'])
 class ErerConjugator(ErConjugator):
     REMOVE = u'é([djlmnprsty])er'
@@ -281,6 +288,13 @@ class AyerConjugator(ErConjugator):
     TONIC_RADICAL = 'i|y'
     FUTURE_RADICAL = 'ier|yer'
 
+@conjugates([u'envoyer|renvoyer'])
+class VoyerConjugator(ErConjugator):
+    REMOVE = 'oyer'
+    SINGULAR_RADICAL = 'oie'
+    TONIC_RADICAL = 'oi'
+    FUTURE_RADICAL = 'err'
+
 @conjugates([u'.*ir'])
 class IrConjugator(Conjugator):
     REMOVE = 'r'
@@ -296,6 +310,12 @@ class IrWithoutIssConjugator(IrConjugator):
     ATONIC_RADICAL = ''
     TONIC_RADICAL = ''
 
+@conjugates([u'partir', u'sortir', u'ressortir|.*mentir|.*sentir|.*partir',
+             u'.*dormir', u'.*servir'])
+class TirConjugator(IrWithoutIssConjugator):
+    REMOVE = '[tmv]ir'
+    SINGULAR_RADICAL = ''
+
 @conjugates([u'.*voir|.*oir'])
 class VoirConjugator(IrWithoutIssConjugator):
     REMOVE = 'oir'
@@ -303,6 +323,26 @@ class VoirConjugator(IrWithoutIssConjugator):
     ATONIC_RADICAL = 'oy'
     TONIC_RADICAL = 'oi'
     FUTURE_RADICAL = 'err'
+    SIMPLE_PAST_RADICAL = 'i'
+
+@conjugates([u'.*cevoir'])
+class CevoirConjugator(IrWithoutIssConjugator):
+    REMOVE = 'cevoir'
+    PAST_PARTICIPLE = u'çu'
+    SINGULAR_RADICAL = u'çoi'
+    ATONIC_RADICAL = 'cev'
+    TONIC_RADICAL = u'çoiv'
+    FUTURE_RADICAL = 'cevr'
+    SIMPLE_PAST_RADICAL = u'çu'
+
+@conjugates([u'.*asseoir'])
+class AsseoirConjugator(IrWithoutIssConjugator):
+    REMOVE = 'eoir'
+    PAST_PARTICIPLE = 'is'
+    SINGULAR_RADICAL = 'ied|oi'
+    ATONIC_RADICAL = 'ey|oy'
+    TONIC_RADICAL = 'ey|oi'
+    FUTURE_RADICAL = u'iér|oir'
     SIMPLE_PAST_RADICAL = 'i'
 
 @conjugates([u'.*venir', u'circonvenir|contrevenir|prévenir|subvenir|.*tenir'])
@@ -322,11 +362,6 @@ class EnirConjugator(IrWithoutIssConjugator):
     SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
       ['nsse', 'nsses', u'\u0302nt', 'nssions', 'nssiez', 'nssent']
 
-@conjugates([u'partir'])
-class PatrirConjugator(IrWithoutIssConjugator):
-    REMOVE = 'tir'
-    SINGULAR_RADICAL = ''
-
 @conjugates([u'.*ouvrir|.*frir'])
 class RirConjugator(IrWithoutIssConjugator):
     REMOVE = 'rir'
@@ -338,6 +373,15 @@ class RirConjugator(IrWithoutIssConjugator):
     # This works like a regular -er verb.
     PRESENT_SUFFIXES = ['', 's', '', 'ons', 'ez', 'ent']
     IMPERATIVE_SUFFIXES = ['', 'ons', 'ez']
+
+@conjugates([u'mourir'])
+class MourirConjugator(IrWithoutIssConjugator):
+    REMOVE = 'ourir'
+    PAST_PARTICIPLE = 'ort'
+    SINGULAR_RADICAL = 'eur'
+    TONIC_RADICAL = 'eur'
+    FUTURE_RADICAL = 'ourr'
+    SIMPLE_PAST_RADICAL = 'ouru'
 
 @conjugates([u'.*andre|.*endre|.*ondre|.*erdre|.*ordre|.*eurdre'])
 class ReConjugator(Conjugator):
@@ -357,14 +401,16 @@ class PrendreConjugator(ReConjugator):
     TONIC_RADICAL = 'enn'
     SIMPLE_PAST_RADICAL = 'i'
 
-@conjugates([u'.*dire'])
-class DireConjugator(ReConjugator):
+# Verbs like dire, but without the irregular second-person plural.
+class IreConjugator(ReConjugator):
     REMOVE = 're'
     PAST_PARTICIPLE = 't'
     ATONIC_RADICAL = 's'
     TONIC_RADICAL = 's'
     SIMPLE_PAST_RADICAL = ''
 
+@conjugates([u'.*dire'])
+class DireConjugator(IreConjugator):
     def present(self, infinitive):
         inherited = super(DireConjugator, self).present(infinitive)
         inherited[4] = ['dites']
@@ -375,6 +421,25 @@ class DireConjugator(ReConjugator):
         present = self.present(infinitive)
         return [present[i] for i in [1,3,4]]
 
+@conjugates([u'.*lire'])
+class LireConjugator(IreConjugator):
+    REMOVE = 'ire'
+    PAST_PARTICIPLE = 'u'
+    SIMPLE_PAST_RADICAL = 'u'
+
+@conjugates([u'.*uire'])
+class UireConjugator(IreConjugator):
+    REMOVE = 're'
+    SIMPLE_PAST_RADICAL = 'si'
+
+@conjugates([u'.*crire'])
+class CrireConjugator(IreConjugator):
+    REMOVE = 're'
+    ATONIC_RADICAL = 'v'
+    TONIC_RADICAL = 'v'
+    SIMPLE_PAST_RADICAL = 'vi'
+
+# Neil Coffey says this is similar to the dormir pattern.
 @conjugates([u'.*suivre'])
 class SuivreConjugator(ReConjugator):
     REMOVE = 'vre'
@@ -388,11 +453,23 @@ class CroireConjugator(ReConjugator):
     ATONIC_RADICAL = 'oy'
     SIMPLE_PAST_RADICAL = 'u'
 
+@conjugates([u'.*boire'])
+class BoireConjugator(ReConjugator):
+    REMOVE = 'oire'
+    PAST_PARTICIPLE = 'u'
+    ATONIC_RADICAL = 'uv'
+    TONIC_RADICAL = 'oiv'
+    SIMPLE_PAST_RADICAL = 'u'
+
+@conjugates(['.*battre'])
+class BattreConjugator(ReConjugator):
+    REMOVE = 'tre'
+    SINGULAR_RADICAL = ''
+
 @conjugates(['.*mettre'])
-class MettreConjugator(ReConjugator):
+class MettreConjugator(BattreConjugator):
     REMOVE = 'ettre'
     PAST_PARTICIPLE = 'is'
-    SINGULAR_RADICAL = 'et'
     SIMPLE_PAST_RADICAL = 'i'
 
 @conjugates([u'.*connaître|.*paraître'])
@@ -405,11 +482,37 @@ class ConnaitreConjugator(ReConjugator):
     SIMPLE_PAST_RADICAL = 'u'
 
     # The orthographe rectifiée de 1990 drops the cirucmflex from this
-    # verb, removing this special case.
+    # verb, removing this special case (and also changing the infinitive).
+    PRESENT_SUFFIXES = ['s', 's', u'\u0302t', 'ons', 'ez', 'ent']
+
+@conjugates([u'.*plaire'])
+class PlaireConjugator(ReConjugator):
+    REMOVE = u'aire'
+    PAST_PARTICIPLE = 'u'
+    ATONIC_RADICAL = u'ais'
+    TONIC_RADICAL = u'ais'
+    SIMPLE_PAST_RADICAL = 'u'
+
+    # Another circumflex adjustment.  If we supported alterantive suffixes,
+    # we're just write:
+    #     PRESENT_SUFFIXES = ['s', 's', u'\u0302t|t', 'ons', 'ez', 'ent']
     def present(self, infinitive):
-        inherited = super(ConnaitreConjugator, self).present(infinitive)
-        inherited[2][0] = re.sub('ait$', u'aît', inherited[2][0])
+        inherited = super(PlaireConjugator, self).present(infinitive)
+        inherited[2] = [re.sub('ait$', u'aît', inherited[2][0])] + inherited[2]
         return inherited
+
+@conjugates([u'.*vivre'])
+class VivreConjugator(SuivreConjugator):
+    REMOVE = 'ivre'
+    PAST_PARTICIPLE = u'écu'
+    SIMPLE_PAST_RADICAL = u'écu'
+
+# TODO: Move this into a vendre-based pattern?
+@conjugates([u'.*foutre'])
+class FoutreConjugator(ReConjugator):
+    # Literary tenses are rare.
+    REMOVE = 'tre'
+    SINGULAR_RADICAL = ''
 
 # Open our database.
 db = sqlite3.connect("lexique.sqlite3")
