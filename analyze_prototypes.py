@@ -206,23 +206,25 @@ class UnimplementedConjugator(Conjugator):
 # Look up conjugators by verb label.
 CONJUGATOR_BY_LABEL = defaultdict(UnimplementedConjugator)
 
+# A decorator for subclasses of Conjugator, to help register them.
+def conjugates(labels):
+    def wrap(conjugator_class):
+        for label in labels:
+            CONJUGATOR_BY_LABEL[label] = conjugator_class()
+        return conjugator_class
+    return wrap
+
 # This class doesn't actually conjugate anything.  It just says it does.
 # We use this for verbs which are truly irregular.
+@conjugates([u'être', u'avoir', u'aller', u'.*faire', u'pouvoir', u'.*vouloir',
+             u'.*savoir', u'.*devoir'])
+@conjugates([u'.*voir|.*oir', u'.*venir']) # TODO: Write conjugators.
 class IrregularConjugator:
     def assert_matches_prototype(self, prototype):
         pass
 
-CONJUGATOR_BY_LABEL[u'être'] = IrregularConjugator()
-CONJUGATOR_BY_LABEL[u'avoir'] = IrregularConjugator()
-CONJUGATOR_BY_LABEL[u'aller'] = IrregularConjugator()
-CONJUGATOR_BY_LABEL[u'.*faire'] = IrregularConjugator()
-CONJUGATOR_BY_LABEL[u'pouvoir'] = IrregularConjugator()
-CONJUGATOR_BY_LABEL[u'.*vouloir'] = IrregularConjugator()
-CONJUGATOR_BY_LABEL[u'.*savoir'] = IrregularConjugator()
-CONJUGATOR_BY_LABEL[u'.*voir|.*oir'] = IrregularConjugator() # TODO: Replace.
-CONJUGATOR_BY_LABEL[u'.*venir'] = IrregularConjugator() # TODO: Replace.
-CONJUGATOR_BY_LABEL[u'.*devoir'] = IrregularConjugator()
-
+@conjugates([u'.*er', u'arriver|entrer|rentrer|rester|retomber|tomber',
+             u'.*ger'])
 class ErConjugator(Conjugator):
     REMOVE = 'er'
     PAST_PARTICIPLE = u'é'
@@ -243,11 +245,8 @@ class ErConjugator(Conjugator):
         sing_r = self.singular_radicals(infinitive)
         return [sing_r] + inherited[1:]
 
-CONJUGATOR_BY_LABEL[u'.*er'] = ErConjugator()
-CONJUGATOR_BY_LABEL[u'arriver|entrer|rentrer|rester|retomber|tomber'] = \
-  ErConjugator() # être verbs.
-CONJUGATOR_BY_LABEL[u'.*ger'] = ErConjugator()
 
+@conjugates([u'.*ir'])
 class IrConjugator(Conjugator):
     REMOVE = 'r'
     PAST_PARTICIPLE = ''
@@ -257,8 +256,7 @@ class IrConjugator(Conjugator):
     FUTURE_RADICAL = 'r'
     SIMPLE_PAST_RADICAL = ''
 
-CONJUGATOR_BY_LABEL[u'.*ir'] = IrConjugator()
-
+@conjugates([u'.*andre|.*endre|.*ondre|.*erdre|.*ordre|.*eurdre'])
 class ReConjugator(Conjugator):
     REMOVE = 're'
     PAST_PARTICIPLE = 'u'
@@ -268,9 +266,7 @@ class ReConjugator(Conjugator):
     FUTURE_RADICAL = 'r'
     SIMPLE_PAST_RADICAL = 'i'
 
-CONJUGATOR_BY_LABEL[u'.*andre|.*endre|.*ondre|.*erdre|.*ordre|.*eurdre'] = \
-  ReConjugator()
-
+@conjugates([u'.*prendre'])
 class PrendreConjugator(ReConjugator):
     REMOVE = 'endre'
     PAST_PARTICIPLE = 'is'
@@ -278,8 +274,7 @@ class PrendreConjugator(ReConjugator):
     TONIC_RADICAL = 'enn'
     SIMPLE_PAST_RADICAL = 'i'
 
-CONJUGATOR_BY_LABEL[u'.*prendre'] = PrendreConjugator() # TODO: Replace.
-
+@conjugates([u'.*dire'])
 class DireConjugator(ReConjugator):
     REMOVE = 're'
     PAST_PARTICIPLE = 't'
@@ -291,8 +286,6 @@ class DireConjugator(ReConjugator):
         inherited = super(DireConjugator, self).present(infinitive)
         inherited[4] = ['dites']
         return inherited
-
-CONJUGATOR_BY_LABEL[u'.*dire'] = DireConjugator()
 
 # Open our database.
 db = sqlite3.connect("lexique.sqlite3")
