@@ -24,9 +24,6 @@ import prototype
 
 # Conjugate a group of verbs.
 class Conjugator(object):
-    def is_implemented(self):
-        return False
-
     REMOVE = None
     PAST_PARTICIPLE = None
     SINGULAR_RADICAL = None
@@ -193,15 +190,18 @@ class Conjugator(object):
         self._assert_matches(prototype, 'simple_past')
         self._assert_matches(prototype, 'subjunctive_imperfect')
 
+# Used by default for verb forms we don't handle yet.
+class UnimplementedConjugator(Conjugator):
+    def assert_matches_prototype(self, prototype):
+        print("Unimplemented: %s (%s)" % (p.example, p.label))
+        sys.exit(1)
+        
 # Look up conjugators by verb label.
-CONJUGATOR_BY_LABEL = defaultdict(Conjugator)
+CONJUGATOR_BY_LABEL = defaultdict(UnimplementedConjugator)
 
 # This class doesn't actually conjugate anything.  It just says it does.
 # We use this for verbs which are truly irregular.
 class IrregularConjugator:
-    def is_implemented(self):
-        return True
-
     def assert_matches_prototype(self, prototype):
         pass
 
@@ -217,9 +217,6 @@ CONJUGATOR_BY_LABEL[u'.*venir'] = IrregularConjugator() # TODO: Replace.
 CONJUGATOR_BY_LABEL[u'.*devoir'] = IrregularConjugator()
 
 class ErConjugator(Conjugator):
-    def is_implemented(self):
-        return True
-
     REMOVE = 'er'
     PAST_PARTICIPLE = u'é'
     SINGULAR_RADICAL = 'e'
@@ -249,9 +246,6 @@ CONJUGATOR_BY_LABEL[u'arriver|entrer|rentrer|rester|retomber|tomber'] = \
 CONJUGATOR_BY_LABEL[u'.*ger'] = ErConjugator()
 
 class IrConjugator(Conjugator):
-    def is_implemented(self):
-        return True
-
     REMOVE = 'r'
     PAST_PARTICIPLE = ''
     SINGULAR_RADICAL = ''
@@ -263,9 +257,6 @@ class IrConjugator(Conjugator):
 CONJUGATOR_BY_LABEL[u'.*ir'] = IrConjugator()
 
 class ReConjugator(Conjugator):
-    def is_implemented(self):
-        return True
-
     REMOVE = 're'
     PAST_PARTICIPLE = 'u'
     SINGULAR_RADICAL = ''
@@ -327,7 +318,4 @@ for row in db.execute(query):
 # Iterate over our prototypes until we hit a mismatch.
 for p in prototypes:
     conj = CONJUGATOR_BY_LABEL[p.label]
-    if not conj.is_implemented():
-        print("Unimplemented: %s (%s)" % (p.example, p.label))
-        sys.exit(1)
     conj.assert_matches_prototype(p)
