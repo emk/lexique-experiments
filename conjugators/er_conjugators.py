@@ -21,6 +21,7 @@ class ErConjugator(Conjugator):
     SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
       ['asse', 'asses', u'ât', 'assions', 'assiez', 'assent']
 
+# Consonant doubling in some forms.
 @conjugates([u'.*e([lt])er'])
 class ElerConjugator(ErConjugator):
     REMOVE = '([lt])er'
@@ -28,14 +29,15 @@ class ElerConjugator(ErConjugator):
     TONIC_RADICAL = '\\1\\1'
     FUTURE_RADICAL = '\\1\\1er'
 
-# Non-doubling version of the rule above.
-@conjugates([u'acheter|bégueter|bouveter|breveter|caleter|corseter|crocheter|émoucheter|fileter|fureter|haleter|préacheter|racheter|.*éceter', u'aciseler|celer|ciseler|congeler|crêpeler|déceler|décongeler|dégeler|démanteler|écarteler|embreler|encasteler|épinceler|friseler|geler|harceler|marteler|modeler|peler|receler|recongeler|regeler|remodeler|surgeler'])
+# Transforming e -> è.  Future tense included.
+@conjugates([u'acheter|bégueter|bouveter|breveter|caleter|corseter|crocheter|émoucheter|fileter|fureter|haleter|préacheter|racheter|.*éceter', u'aciseler|celer|ciseler|congeler|crêpeler|déceler|décongeler|dégeler|démanteler|écarteler|embreler|encasteler|épinceler|friseler|geler|harceler|marteler|modeler|peler|receler|recongeler|regeler|remodeler|surgeler', u'.*e([mnprsv])er'])
 class EterConjugator(ErConjugator):
-    REMOVE = 'e([lt])er'
+    REMOVE = 'e([lt]|[mnprsv])er'
     SINGULAR_RADICAL = u'è\\1e'
     TONIC_RADICAL = u'è\\1'
     FUTURE_RADICAL = u'è\\1er'
 
+# Transforming é -> è.  Future tense not included.
 # TODO: Why are -éger verbs broken out in the XML dataset?
 @conjugates([u'.*é([djlmnprsty])er', u'.*éger', u'.*ég([lnru])er', u'.*écher',
              u'.*é([bctv])rer'])
@@ -43,13 +45,6 @@ class ErerConjugator(ErConjugator):
     REMOVE = u'é([djlmnprsty]|g|g[lnru]|ch|[bctv]r)er'
     SINGULAR_RADICAL = u'è\\1e'
     TONIC_RADICAL = u'è\\1'
-
-@conjugates([u'.*e([mnprsv])er'])
-class EmerConjugator(ErConjugator):
-    REMOVE = 'e([mnprsv])er'
-    SINGULAR_RADICAL = u'è\\1e'
-    TONIC_RADICAL = u'è\\1'
-    FUTURE_RADICAL = u'è\\1er'
 
 @conjugates([u'.*oyer|.*uyer'])
 class YerConjugator(ErConjugator):

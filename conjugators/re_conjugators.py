@@ -40,6 +40,8 @@ class ResoudreConjugator(ReConjugator):
     SIMPLE_PAST_RADICAL = 'lu'
 
 # Verbs like dire, but without the irregular second-person plural.
+# TODO: Make sure interdire, etc., get moved into this category.  And
+# fix the rules in our XML database to be correct.
 class IreConjugator(ReConjugator):
     REMOVE = 're'
     PAST_PARTICIPLE = 't'
@@ -49,6 +51,7 @@ class IreConjugator(ReConjugator):
 
 @conjugates([u'.*dire'])
 class DireConjugator(IreConjugator):
+    # Present 2PL is 'dites'.
     def present(self, infinitive):
         inherited = super(DireConjugator, self).present(infinitive)
         inherited[4] = ['dites']
@@ -122,6 +125,7 @@ class MettreConjugator(BattreConjugator):
     PAST_PARTICIPLE = 'is'
     SIMPLE_PAST_RADICAL = 'i'
 
+# TODO: Consider adding a modern 'aitre' version of these infinitives.
 @conjugates([u'.*connaître|.*paraître'])
 class ConnaitreConjugator(ReConjugator):
     REMOVE = u'aître'
