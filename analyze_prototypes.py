@@ -218,7 +218,6 @@ def conjugates(labels):
 # We use this for verbs which are truly irregular.
 @conjugates([u'être', u'avoir', u'aller', u'.*faire', u'pouvoir', u'.*vouloir',
              u'.*savoir', u'.*devoir'])
-@conjugates([u'.*voir|.*oir', u'.*venir']) # TODO: Write conjugators.
 class IrregularConjugator:
     def assert_matches_prototype(self, prototype):
         pass
@@ -245,7 +244,6 @@ class ErConjugator(Conjugator):
         sing_r = self.singular_radicals(infinitive)
         return [sing_r] + inherited[1:]
 
-
 @conjugates([u'.*ir'])
 class IrConjugator(Conjugator):
     REMOVE = 'r'
@@ -255,6 +253,32 @@ class IrConjugator(Conjugator):
     TONIC_RADICAL = 'ss'
     FUTURE_RADICAL = 'r'
     SIMPLE_PAST_RADICAL = ''
+
+@conjugates([u'.*voir|.*oir'])
+class VoirConjugator(IrConjugator):
+    REMOVE = 'oir'
+    PAST_PARTICIPLE = 'u'
+    ATONIC_RADICAL = 'oy'
+    TONIC_RADICAL = 'oi'
+    FUTURE_RADICAL = 'err'
+    SIMPLE_PAST_RADICAL = 'i'
+
+@conjugates([u'.*venir'])
+class VenirConjugator(IrConjugator):
+    REMOVE = 'enir'
+    PAST_PARTICIPLE = 'enu'
+    SINGULAR_RADICAL = 'ien'
+    ATONIC_RADICAL = 'en'
+    TONIC_RADICAL = 'ienn'
+    FUTURE_RADICAL = 'iendr'
+    SIMPLE_PAST_RADICAL = 'i'
+
+    # There's an extra 'n' here, but it comes after any circumflex.  We
+    # choose to customize the suffixes instead of the merging rule.
+    SIMPLE_PAST_SUFFIXES = \
+      ['ns', 'ns', 'nt', u'\u0302nmes', u'\u0302ntes', 'nrent']
+    SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
+      ['nsse', 'nsses', u'\u0302nt', 'nssions', 'nssiez', 'nssent']
 
 @conjugates([u'.*andre|.*endre|.*ondre|.*erdre|.*ordre|.*eurdre'])
 class ReConjugator(Conjugator):
@@ -286,6 +310,19 @@ class DireConjugator(ReConjugator):
         inherited = super(DireConjugator, self).present(infinitive)
         inherited[4] = ['dites']
         return inherited
+
+@conjugates([u'.*suivre'])
+class SuivreConjugator(ReConjugator):
+    REMOVE = 'vre'
+    PAST_PARTICIPLE = 'vi'
+    SINGULAR_RADICAL = ''
+
+@conjugates([u'.*croire'])
+class CroireConjugator(ReConjugator):
+    REMOVE = 'oire'
+    PAST_PARTICIPLE = 'u'
+    ATONIC_RADICAL = 'oy'
+    SIMPLE_PAST_RADICAL = 'u'
 
 # Open our database.
 db = sqlite3.connect("lexique.sqlite3")
