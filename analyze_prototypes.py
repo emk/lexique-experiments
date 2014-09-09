@@ -230,7 +230,7 @@ def conjugates(labels):
 # This class doesn't actually conjugate anything.  It just says it does.
 # We use this for verbs which are truly irregular.
 @conjugates([u'être', u'avoir', u'aller', u'.*faire', u'pouvoir', u'.*vouloir',
-             u'.*savoir', u'.*devoir'])
+             u'.*savoir', u'.*devoir', u'.*valoir'])
 @conjugates([u'falloir']) # TODO: Defective verbs to handle later.
 class IrregularConjugator:
     def assert_matches_prototype(self, prototype):
@@ -268,9 +268,10 @@ class EterConjugator(ErConjugator):
     TONIC_RADICAL = u'èt'
     FUTURE_RADICAL = u'èter'
 
-@conjugates([u'.*é([djlmnprsty])er'])
+# TODO: Why are -éger verbs broken out in the XML dataset?
+@conjugates([u'.*é([djlmnprsty])er', u'.*éger'])
 class ErerConjugator(ErConjugator):
-    REMOVE = u'é([djlmnprsty])er'
+    REMOVE = u'é([djlmnprstyg])er'
     SINGULAR_RADICAL = u'è\\1e'
     TONIC_RADICAL = u'è\\1'
 
@@ -281,18 +282,23 @@ class EmerConjugator(ErConjugator):
     TONIC_RADICAL = u'è\\1'
     FUTURE_RADICAL = u'è\\1er'
 
+@conjugates([u'.*oyer|.*uyer'])
+class YerConjugator(ErConjugator):
+    REMOVE = 'yer'
+    SINGULAR_RADICAL = 'ie'
+    TONIC_RADICAL = 'i'
+    FUTURE_RADICAL = 'ier'
+
 @conjugates([u'.*ayer'])
-class AyerConjugator(ErConjugator):
+class AyerConjugator(YerConjugator):
     REMOVE = 'yer'
     SINGULAR_RADICAL = 'ie|ye'
     TONIC_RADICAL = 'i|y'
     FUTURE_RADICAL = 'ier|yer'
 
 @conjugates([u'envoyer|renvoyer'])
-class VoyerConjugator(ErConjugator):
+class VoyerConjugator(YerConjugator):
     REMOVE = 'oyer'
-    SINGULAR_RADICAL = 'oie'
-    TONIC_RADICAL = 'oi'
     FUTURE_RADICAL = 'err'
 
 @conjugates([u'.*ir'])
@@ -311,7 +317,7 @@ class IrWithoutIssConjugator(IrConjugator):
     TONIC_RADICAL = ''
 
 @conjugates([u'partir', u'sortir', u'ressortir|.*mentir|.*sentir|.*partir',
-             u'.*dormir', u'.*servir'])
+             u'.*dormir', u'.*servir', 'mentir'])
 class TirConjugator(IrWithoutIssConjugator):
     REMOVE = '[tmv]ir'
     SINGULAR_RADICAL = ''
@@ -362,6 +368,13 @@ class EnirConjugator(IrWithoutIssConjugator):
     SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
       ['nsse', 'nsses', u'\u0302nt', 'nssions', 'nssiez', 'nssent']
 
+@conjugates([u'.*fuir'])
+class FuirConjugator(IrWithoutIssConjugator):
+    REMOVE = 'ir'
+    SINGULAR_RADICAL = 'i'
+    ATONIC_RADICAL = 'y'
+    TONIC_RADICAL = 'i'
+
 @conjugates([u'.*ouvrir|.*frir'])
 class RirConjugator(IrWithoutIssConjugator):
     REMOVE = 'rir'
@@ -373,6 +386,14 @@ class RirConjugator(IrWithoutIssConjugator):
     # This works like a regular -er verb.
     PRESENT_SUFFIXES = ['', 's', '', 'ons', 'ez', 'ent']
     IMPERATIVE_SUFFIXES = ['', 'ons', 'ez']
+
+@conjugates([u'.*courir'])
+class CourirConjugator(IrWithoutIssConjugator):
+    REMOVE = 'ir'
+    PAST_PARTICIPLE = 'u'
+    SINGULAR_RADICAL = ''
+    FUTURE_RADICAL = 'r'
+    SIMPLE_PAST_RADICAL = 'u'
 
 @conjugates([u'mourir'])
 class MourirConjugator(IrWithoutIssConjugator):
@@ -400,6 +421,15 @@ class PrendreConjugator(ReConjugator):
     ATONIC_RADICAL = 'en'
     TONIC_RADICAL = 'enn'
     SIMPLE_PAST_RADICAL = 'i'
+
+@conjugates([u'.*iendre|.*eindre', u'.*aindre', u'.*oindre'])
+class NdreConjugator(ReConjugator):
+    REMOVE = 'ndre'
+    PAST_PARTICIPLE = 'nt'
+    SINGULAR_RADICAL = 'n'
+    ATONIC_RADICAL = 'gn'
+    TONIC_RADICAL = 'gn'
+    SIMPLE_PAST_RADICAL = 'gni'
 
 # Verbs like dire, but without the irregular second-person plural.
 class IreConjugator(ReConjugator):
@@ -438,6 +468,18 @@ class CrireConjugator(IreConjugator):
     ATONIC_RADICAL = 'v'
     TONIC_RADICAL = 'v'
     SIMPLE_PAST_RADICAL = 'vi'
+
+@conjugates([u'suffire'])
+class SuffireConjugator(IreConjugator):
+    REMOVE = 're'
+    PAST_PARTICIPLE = ''
+
+@conjugates([u'.*rire'])
+class RireConjugator(IreConjugator):
+    REMOVE = 're'
+    PAST_PARTICIPLE = ''
+    ATONIC_RADICAL = ''
+    TONIC_RADICAL = ''
 
 # Neil Coffey says this is similar to the dormir pattern.
 @conjugates([u'.*suivre'])
@@ -485,14 +527,16 @@ class ConnaitreConjugator(ReConjugator):
     # verb, removing this special case (and also changing the infinitive).
     PRESENT_SUFFIXES = ['s', 's', u'\u0302t', 'ons', 'ez', 'ent']
 
-@conjugates([u'.*plaire'])
-class PlaireConjugator(ReConjugator):
+@conjugates([u'taire'])
+class AireConjugator(ReConjugator):
     REMOVE = u'aire'
     PAST_PARTICIPLE = 'u'
     ATONIC_RADICAL = u'ais'
     TONIC_RADICAL = u'ais'
     SIMPLE_PAST_RADICAL = 'u'
 
+@conjugates([u'.*plaire'])
+class PlaireConjugator(AireConjugator):
     # Another circumflex adjustment.  If we supported alterantive suffixes,
     # we're just write:
     #     PRESENT_SUFFIXES = ['s', 's', u'\u0302t|t', 'ons', 'ez', 'ent']
