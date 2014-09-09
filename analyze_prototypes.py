@@ -32,6 +32,18 @@ class Conjugator(object):
     FUTURE_RADICAL = None
     SIMPLE_PAST_RADICAL = None
 
+    # Suffixes used by the present tense.
+    PRESENT_SUFFIXES = ['s', 's', 't', 'ons', 'ez', 'ent']
+
+    # Suffixes used by the simple past tense.  These may begin with
+    # Unicode combining characters.
+    SIMPLE_PAST_SUFFIXES = ['s', 's', 't', u'\u0302mes', u'\u0302tes', u'rent']
+
+    # Suffixes used by the subjunctive imperfect tense.  These may begin
+    # with Unicode combining characters.
+    SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
+      ['sse', 'sses', u'\u0302t', 'ssions', 'ssiez', 'ssent']
+
     # Search up the class hierarchy for the specified key.  If it is found,
     # optionally return a related key from the same level of the class
     # hierarchy.  This is used to search for radicals
@@ -77,6 +89,15 @@ class Conjugator(object):
     def simple_past_radicals(self, infinitive):
         return self._radicals('SIMPLE_PAST_RADICAL', infinitive)
 
+    def present_suffixes(self):
+        return self._find_key('PRESENT_SUFFIXES')
+
+    def simple_past_suffixes(self):
+        return self._find_key('SIMPLE_PAST_SUFFIXES')
+
+    def subjunctive_imperfect_suffixes(self):
+        return self._find_key('SUBJUNCTIVE_IMPERFECT_SUFFIXES')
+
     # General suffix application rules that simplify life elsewhere.
     def _apply_suffix(self, radical, suffix):
         if re.search('g$', radical) and not re.search(u'^[ieéè]', suffix):
@@ -97,10 +118,6 @@ class Conjugator(object):
     # Generate a set of forms which all use the same radical.
     def _simple_forms(self, radicals, suffixes):
         return self._forms([(radicals, s) for s in suffixes])
-
-    # Suffixes used by the present tense.
-    def present_suffixes(self):
-        return ['s', 's', 't', 'ons', 'ez', 'ent']
 
     # Generate present tense forms.
     def present(self, infinitive):
@@ -143,21 +160,11 @@ class Conjugator(object):
         suffixes = ['ais', 'ais', 'ait', 'ions', 'iez', 'aient']
         return self._simple_forms(future_r, suffixes)
 
-    # Suffixes used by the simple past tense.  These may begin with
-    # Unicode combining characters.
-    def simple_past_suffixes(self):
-        return ['s', 's', 't', u'\u0302mes', u'\u0302tes', u'rent']
-
     # Generate the simple past tense forms.
     def simple_past(self, infinitive):
         past_r = self.simple_past_radicals(infinitive)
         suffixes = self.simple_past_suffixes()
         return self._simple_forms(past_r, suffixes)
-
-    # Suffixes used by the simple past tense.  These may begin with
-    # Unicode combining characters.
-    def subjunctive_imperfect_suffixes(self):
-        return ['sse', 'sses', u'\u0302t', 'ssions', 'ssiez', 'ssent']
 
     # Generate the subjunctive imperfect forms.
     def subjunctive_imperfect(self, infinitive):
@@ -195,7 +202,7 @@ class UnimplementedConjugator(Conjugator):
     def assert_matches_prototype(self, prototype):
         print("Unimplemented: %s (%s)" % (p.example, p.label))
         sys.exit(1)
-        
+
 # Look up conjugators by verb label.
 CONJUGATOR_BY_LABEL = defaultdict(UnimplementedConjugator)
 
@@ -226,19 +233,15 @@ class ErConjugator(Conjugator):
     # We put the 'a' into our endings, because of 'èrent'.
     SIMPLE_PAST_RADICAL = ''
 
-    def present_suffixes(self):
-        return ['', 's', '', 'ons', 'ez', 'ent']
+    PRESENT_SUFFIXES = ['', 's', '', 'ons', 'ez', 'ent']
+    SIMPLE_PAST_SUFFIXES = ['ai', 'as', 'a', u'âmes', u'âtes', u'èrent']
+    SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
+      ['asse', 'asses', u'ât', 'assions', 'assiez', 'assent']
 
     def imperative(self, infinitive):
         inherited = super(ErConjugator, self).imperative(infinitive)
         sing_r = self.singular_radicals(infinitive)
         return [sing_r] + inherited[1:]
-
-    def simple_past_suffixes(self):
-        return ['ai', 'as', 'a', u'âmes', u'âtes', u'èrent']
-
-    def subjunctive_imperfect_suffixes(self):
-        return ['asse', 'asses', u'ât', 'assions', 'assiez', 'assent']
 
 CONJUGATOR_BY_LABEL[u'.*er'] = ErConjugator()
 CONJUGATOR_BY_LABEL[u'arriver|entrer|rentrer|rester|retomber|tomber'] = \
@@ -253,7 +256,7 @@ class IrConjugator(Conjugator):
     TONIC_RADICAL = 'ss'
     FUTURE_RADICAL = 'r'
     SIMPLE_PAST_RADICAL = ''
-    
+
 CONJUGATOR_BY_LABEL[u'.*ir'] = IrConjugator()
 
 class ReConjugator(Conjugator):
