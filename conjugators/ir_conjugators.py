@@ -3,8 +3,11 @@
 import re
 from conjugator import *
 
+# The regular verbs in this group insert an 'ss' in two radicals.  This is
+# actually a superclass of the IrConjugator because that simplifies the
+# rules.
 @conjugates([u'.*ir'])
-class IrConjugator(Conjugator):
+class IssConjugator(Conjugator):
     REMOVE = 'r'
     PAST_PARTICIPLE = ''
     SINGULAR_RADICAL = ''
@@ -12,25 +15,38 @@ class IrConjugator(Conjugator):
     TONIC_RADICAL = 'ss'
     FUTURE_RADICAL = 'r'
     SIMPLE_PAST_RADICAL = ''
-
+    
 @conjugates([u'bénir'])
-class BenirConjugator(IrConjugator):
+class BenirConjugator(IssConjugator):
     REMOVE = 'r'
     PAST_PARTICIPLE = '|t'
 
-class IrWithoutIssConjugator(IrConjugator):
+@conjugates([u'.*haïr'])
+class HairConjugator(IssConjugator):
+    REMOVE = u'ïr'
+    SINGULAR_RADICAL = 'i'
+
+    # The usual endings, but without the combining circumflex.
+    SIMPLE_PAST_SUFFIXES = ['s', 's', 't', u'mes', u'tes', u'rent']
+    SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
+      ['sse', 'sses', u't', 'ssions', 'ssiez', 'ssent']
+
+# This is a version of the standard -ir conjugation, but without the '-iss'
+# inserted in the tonic and atonic radicals.  All these verbs are actually
+# irregular in some small way.
+class IrConjugator(IssConjugator):
     REMOVE = 'ir'
     ATONIC_RADICAL = ''
     TONIC_RADICAL = ''
 
 @conjugates([u'partir', u'sortir', u'ressortir|.*mentir|.*sentir|.*partir',
              u'.*dormir', u'.*servir', 'mentir', '.*endormir|redormir'])
-class TirConjugator(IrWithoutIssConjugator):
+class TirConjugator(IrConjugator):
     REMOVE = '[tmv]ir'
     SINGULAR_RADICAL = ''
 
 @conjugates([u'.*voir|.*oir'])
-class VoirConjugator(IrWithoutIssConjugator):
+class VoirConjugator(IrConjugator):
     REMOVE = 'oir'
     PAST_PARTICIPLE = 'u'
     ATONIC_RADICAL = 'oy'
@@ -49,7 +65,7 @@ class PourvoirConjugator(PrevoirConjugator):
     SIMPLE_PAST_RADICAL = 'u' # Now we're just getting silly.
 
 @conjugates([u'.*cevoir'])
-class CevoirConjugator(IrWithoutIssConjugator):
+class CevoirConjugator(IrConjugator):
     REMOVE = 'cevoir'
     PAST_PARTICIPLE = u'çu'
     SINGULAR_RADICAL = u'çoi'
@@ -58,8 +74,9 @@ class CevoirConjugator(IrWithoutIssConjugator):
     FUTURE_RADICAL = 'cevr'
     SIMPLE_PAST_RADICAL = u'çu'
 
+# Wow, this verb is a mess.
 @conjugates([u'.*asseoir'])
-class AsseoirConjugator(IrWithoutIssConjugator):
+class AsseoirConjugator(IrConjugator):
     REMOVE = 'eoir'
     PAST_PARTICIPLE = 'is'
     SINGULAR_RADICAL = 'ied|oi'
@@ -69,7 +86,7 @@ class AsseoirConjugator(IrWithoutIssConjugator):
     SIMPLE_PAST_RADICAL = 'i'
 
 @conjugates([u'.*venir', u'circonvenir|contrevenir|prévenir|subvenir|.*tenir', u'convenir'])
-class EnirConjugator(IrWithoutIssConjugator):
+class EnirConjugator(IrConjugator):
     REMOVE = 'enir'
     PAST_PARTICIPLE = 'enu'
     SINGULAR_RADICAL = 'ien'
@@ -86,14 +103,14 @@ class EnirConjugator(IrWithoutIssConjugator):
       ['nsse', 'nsses', u'\u0302nt', 'nssions', 'nssiez', 'nssent']
 
 @conjugates([u'.*fuir'])
-class FuirConjugator(IrWithoutIssConjugator):
+class FuirConjugator(IrConjugator):
     REMOVE = 'ir'
     SINGULAR_RADICAL = 'i'
     ATONIC_RADICAL = 'y'
     TONIC_RADICAL = 'i'
 
 @conjugates([u'.*ouvrir|.*frir'])
-class RirConjugator(IrWithoutIssConjugator):
+class RirConjugator(IrConjugator):
     REMOVE = 'rir'
     PAST_PARTICIPLE = 'ert'
     SINGULAR_RADICAL = 're'
@@ -105,7 +122,7 @@ class RirConjugator(IrWithoutIssConjugator):
     IMPERATIVE_SUFFIXES = ['', 'ons', 'ez']
 
 @conjugates([u'.*courir'])
-class CourirConjugator(IrWithoutIssConjugator):
+class CourirConjugator(IrConjugator):
     REMOVE = 'ir'
     PAST_PARTICIPLE = 'u'
     SINGULAR_RADICAL = ''
@@ -113,7 +130,7 @@ class CourirConjugator(IrWithoutIssConjugator):
     SIMPLE_PAST_RADICAL = 'u'
 
 @conjugates([u'mourir'])
-class MourirConjugator(IrWithoutIssConjugator):
+class MourirConjugator(IrConjugator):
     REMOVE = 'ourir'
     PAST_PARTICIPLE = 'ort'
     SINGULAR_RADICAL = 'eur'
@@ -122,7 +139,7 @@ class MourirConjugator(IrWithoutIssConjugator):
     SIMPLE_PAST_RADICAL = 'ouru'
 
 @conjugates([u'.*quérir'])
-class QuerirConjugator(IrWithoutIssConjugator):
+class QuerirConjugator(IrConjugator):
     REMOVE = u'érir'
     PAST_PARTICIPLE = 'is'
     SINGULAR_RADICAL = 'ier'
@@ -130,18 +147,8 @@ class QuerirConjugator(IrWithoutIssConjugator):
     FUTURE_RADICAL = 'err'
     SIMPLE_PAST_RADICAL = 'i'
 
-@conjugates([u'.*haïr'])
-class HairConjugator(IrConjugator):
-    REMOVE = u'ïr'
-    SINGULAR_RADICAL = 'i'
-
-    # The usual endings, but without the combining circumflex.
-    SIMPLE_PAST_SUFFIXES = ['s', 's', 't', u'mes', u'tes', u'rent']
-    SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
-      ['sse', 'sses', u't', 'ssions', 'ssiez', 'ssent']
-
 @conjugates([u'.*cueillir'])
-class CueillirConjugator(IrWithoutIssConjugator):
+class CueillirConjugator(IrConjugator):
     REMOVE = 'ir'
     SINGULAR_RADICAL = 'e'
     FUTURE_RADICAL = 'er'
