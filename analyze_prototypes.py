@@ -27,27 +27,58 @@ class Conjugator(object):
     def is_implemented(self):
         return False
 
+    REMOVE = None
+    PAST_PARTICIPLE = None
+    SINGULAR_RADICAL = None
+    ATONIC_RADICAL = None
+    TONIC_RADICAL = None
+    FUTURE_RADICAL = None
+    SIMPLE_PAST_RADICAL = None
+
+    # Search up the class hierarchy for the specified key.  If it is found,
+    # optionally return a related key from the same level of the class
+    # hierarchy.  This is used to search for radicals
+    def _find_key(self, key, key2=None):
+        klass = self.__class__
+        while not key in klass.__dict__ and klass != Conjugator:
+            klass = klass.__base__
+        if key in klass.__dict__ and getattr(klass, key) is not None:
+            if key2 is not None:
+                if key2 in klass.__dict__ and getattr(klass, key2) is not None:
+                    return (getattr(klass, key), getattr(klass, key2))
+                raise KeyError(key2)
+            return getattr(klass, key)
+        else:
+            raise KeyError(key)
+
+    # Construct the specified list of radicals for the given infinitive.
+    # Returns a list because of verbs which have alternative versions of
+    # certain radicals.
+    def _radicals(self, key, infinitive):
+        (radicals, remove) = self._find_key(key, 'REMOVE')
+        return [re.sub(remove+u'$', r, infinitive) for r in radicals.split('|')]
+
     def past_participles(self, infinitive):
-        raise NotImplementedError()
+        return self._radicals('PAST_PARTICIPLE', infinitive)
 
     def present_particples(self, infinitive):
         atonic_r = self.atonic_radicals(infinitive)
         return self._simple_forms(atonic_r, ['ant'])[0]
 
     def singular_radicals(self, infinitive):
-        raise NotImplementedError()
+        return self._radicals('SINGULAR_RADICAL', infinitive)
 
     def atonic_radicals(self, infinitive):
-        raise NotImplementedError()
+        return self._radicals('ATONIC_RADICAL', infinitive)
 
     def tonic_radicals(self, infinitive):
-        raise NotImplementedError()
+        return self._radicals('TONIC_RADICAL', infinitive)
 
     def future_radicals(self, infinitive):
-        raise NotImplementedError()
+        return self._radicals('FUTURE_RADICAL', infinitive)
 
     def simple_past_radicals(self, infinitive):
-        raise NotImplementedError()
+        return self._radicals('SIMPLE_PAST_RADICAL', infinitive)
 
     # General suffix application rules that simplify life elsewhere.
     def _apply_suffix(self, radical, suffix):
@@ -189,24 +220,14 @@ class ErConjugator(Conjugator):
     def is_implemented(self):
         return True
 
-    def past_participles(self, infinitive):
-        return [re.sub(u'er$', u'é', infinitive)]
-
-    def singular_radicals(self, infinitive):
-        return [re.sub(u'er$', u'e', infinitive)]
-
-    def atonic_radicals(self, infinitive):
-        return [re.sub(u'er$', u'', infinitive)]
-
-    def tonic_radicals(self, infinitive):
-        return [re.sub(u'er$', u'', infinitive)]
-
-    def future_radicals(self, infinitive):
-        return [infinitive]
-
-    def simple_past_radicals(self, infinitive):
-        # Put the 'a' into our endings, because of 'èrent'.
-        return [re.sub(u'er$', u'', infinitive)]
+    REMOVE = 'er'
+    PAST_PARTICIPLE = u'é'
+    SINGULAR_RADICAL = 'e'
+    ATONIC_RADICAL = ''
+    TONIC_RADICAL = ''
+    FUTURE_RADICAL = 'er'
+    # We put the 'a' into our endings, because of 'èrent'.
+    SIMPLE_PAST_RADICAL = ''
 
     def present_suffixes(self):
         return ['', 's', '', 'ons', 'ez', 'ent']
@@ -231,78 +252,46 @@ class IrConjugator(Conjugator):
     def is_implemented(self):
         return True
 
-    def past_participles(self, infinitive):
-        return [re.sub(u'r$', u'', infinitive)]
-
-    def singular_radicals(self, infinitive):
-        return [re.sub(u'r$', u'', infinitive)]
-
-    def atonic_radicals(self, infinitive):
-        return [re.sub(u'r$', u'ss', infinitive)]
-
-    def tonic_radicals(self, infinitive):
-        return [re.sub(u'r$', u'ss', infinitive)]
-
-    def future_radicals(self, infinitive):
-        return [infinitive]
-
-    def simple_past_radicals(self, infinitive):
-        return [re.sub(u'r$', u'', infinitive)]
-
+    REMOVE = 'r'
+    PAST_PARTICIPLE = ''
+    SINGULAR_RADICAL = ''
+    ATONIC_RADICAL = 'ss'
+    TONIC_RADICAL = 'ss'
+    FUTURE_RADICAL = 'r'
+    SIMPLE_PAST_RADICAL = ''
+    
 CONJUGATOR_BY_LABEL[u'.*ir'] = IrConjugator()
 
 class ReConjugator(Conjugator):
     def is_implemented(self):
         return True
 
-    def past_participles(self, infinitive):
-        return [re.sub(u're$', u'u', infinitive)]
-
-    def singular_radicals(self, infinitive):
-        return [re.sub(u're$', u'', infinitive)]
-
-    def atonic_radicals(self, infinitive):
-        return [re.sub(u're$', u'', infinitive)]
-
-    def tonic_radicals(self, infinitive):
-        return [re.sub(u're$', u'', infinitive)]
-
-    def future_radicals(self, infinitive):
-        return [re.sub(u're$', u'r', infinitive)]
-
-    def simple_past_radicals(self, infinitive):
-        return [re.sub(u're$', u'i', infinitive)]
+    REMOVE = 're'
+    PAST_PARTICIPLE = 'u'
+    SINGULAR_RADICAL = ''
+    ATONIC_RADICAL = ''
+    TONIC_RADICAL = ''
+    FUTURE_RADICAL = 'r'
+    SIMPLE_PAST_RADICAL = 'i'
 
 CONJUGATOR_BY_LABEL[u'.*andre|.*endre|.*ondre|.*erdre|.*ordre|.*eurdre'] = \
   ReConjugator()
 
 class PrendreConjugator(ReConjugator):
-    def past_participles(self, infinitive):
-        return [re.sub(u'endre$', u'is', infinitive)]
+    REMOVE = 'endre'
+    PAST_PARTICIPLE = 'is'
+    ATONIC_RADICAL = 'en'
+    TONIC_RADICAL = 'enn'
+    SIMPLE_PAST_RADICAL = 'i'
 
-    def atonic_radicals(self, infinitive):
-        return [re.sub(u'endre$', u'en', infinitive)]
-
-    def tonic_radicals(self, infinitive):
-        return [re.sub(u'endre$', u'enn', infinitive)]
-
-    def simple_past_radicals(self, infinitive):
-        return [re.sub(u'endre$', u'i', infinitive)]
-    
 CONJUGATOR_BY_LABEL[u'.*prendre'] = PrendreConjugator() # TODO: Replace.
 
 class DireConjugator(ReConjugator):
-    def past_participles(self, infinitive):
-        return [re.sub(u're$', u't', infinitive)]
-
-    def atonic_radicals(self, infinitive):
-        return [re.sub(u're$', u's', infinitive)]
-
-    def tonic_radicals(self, infinitive):
-        return [re.sub(u're$', u's', infinitive)]
-
-    def simple_past_radicals(self, infinitive):
-        return [re.sub(u're$', u'', infinitive)]
+    REMOVE = 're'
+    PAST_PARTICIPLE = 't'
+    ATONIC_RADICAL = 's'
+    TONIC_RADICAL = 's'
+    SIMPLE_PAST_RADICAL = ''
 
     def present(self, infinitive):
         inherited = super(DireConjugator, self).present(infinitive)
