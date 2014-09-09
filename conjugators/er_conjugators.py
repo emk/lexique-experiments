@@ -21,7 +21,11 @@ class ErConjugator(Conjugator):
     SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
       ['asse', 'asses', u'ât', 'assions', 'assiez', 'assent']
 
-# Consonant doubling in some forms.
+# Consonant doubling in some forms.  Historically, there have been a large
+# number of verbs in this category, but the Rectifications orthographiques
+# du français in 1990 move all of them to the peler/acheter category below,
+# with the exception of appeler, jeter, and their derivatives, which retain
+# their traditional forms.
 @conjugates([u'.*e([lt])er'])
 class ElerConjugator(ErConjugator):
     REMOVE = '([lt])er'
@@ -69,4 +73,3 @@ class VoyerConjugator(YerConjugator):
 class FicherConjugator(ErConjugator):
     REMOVE = 'er'
     PAST_PARTICIPLE = u'é|u' # By analogy to foutu.
-
