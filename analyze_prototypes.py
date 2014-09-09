@@ -200,8 +200,8 @@ class Conjugator(object):
     # the specified Prototype object.
     def assert_matches_prototype(self, prototype):
         self._assert_matches(prototype, 'past_participles')
-        self._assert_matches(prototype, 'present_particples')
         self._assert_matches(prototype, 'present')
+        self._assert_matches(prototype, 'present_particples')
         self._assert_matches(prototype, 'imperative')
         self._assert_matches(prototype, 'imperfect')
         self._assert_matches(prototype, 'subjunctive')
@@ -230,8 +230,9 @@ def conjugates(labels):
 # This class doesn't actually conjugate anything.  It just says it does.
 # We use this for verbs which are truly irregular.
 @conjugates([u'être', u'avoir', u'aller', u'.*faire', u'pouvoir', u'.*vouloir',
-             u'.*savoir', u'.*devoir', u'.*valoir'])
-@conjugates([u'falloir']) # TODO: Defective verbs to handle later.
+             u'.*savoir', u'.*devoir', u'falloir', u'.*valoir', 'faillir'])
+# TODO: Defective verbs to handle later.
+@conjugates([u'.*pleuvoir', u'parfaire', u'.*raire', u'adirer|douer'])
 class IrregularConjugator:
     def assert_matches_prototype(self, prototype):
         pass
@@ -261,19 +262,21 @@ class ElerConjugator(ErConjugator):
     TONIC_RADICAL = '\\1\\1'
     FUTURE_RADICAL = '\\1\\1er'
 
-@conjugates([u'acheter|bégueter|bouveter|breveter|caleter|corseter|crocheter|émoucheter|fileter|fureter|haleter|préacheter|racheter|.*éceter'])
+# Non-doubling version of the rule above.
+@conjugates([u'acheter|bégueter|bouveter|breveter|caleter|corseter|crocheter|émoucheter|fileter|fureter|haleter|préacheter|racheter|.*éceter', u'aciseler|celer|ciseler|congeler|crêpeler|déceler|décongeler|dégeler|démanteler|écarteler|embreler|encasteler|épinceler|friseler|geler|harceler|marteler|modeler|peler|receler|recongeler|regeler|remodeler|surgeler'])
 class EterConjugator(ErConjugator):
-    REMOVE = 'eter'
-    SINGULAR_RADICAL = u'ète'
-    TONIC_RADICAL = u'èt'
-    FUTURE_RADICAL = u'èter'
+    REMOVE = 'e([lt])er'
+    SINGULAR_RADICAL = u'è\\1e'
+    TONIC_RADICAL = u'è\\1'
+    FUTURE_RADICAL = u'è\\1er'
 
 # TODO: Why are -éger verbs broken out in the XML dataset?
-@conjugates([u'.*é([djlmnprsty])er', u'.*éger', u'.*ég([lnru])er'])
+@conjugates([u'.*é([djlmnprsty])er', u'.*éger', u'.*ég([lnru])er', u'.*écher',
+             u'.*é([bctv])rer'])
 class ErerConjugator(ErConjugator):
-    REMOVE = u'é(g?)([djlmnprstyg])er'
-    SINGULAR_RADICAL = u'è\\1\\2e'
-    TONIC_RADICAL = u'è\\1\\2'
+    REMOVE = u'é([djlmnprsty]|g|g[lnru]|ch|[bctv]r)er'
+    SINGULAR_RADICAL = u'è\\1e'
+    TONIC_RADICAL = u'è\\1'
 
 @conjugates([u'.*e([mnprsv])er'])
 class EmerConjugator(ErConjugator):
@@ -316,13 +319,18 @@ class IrConjugator(Conjugator):
     FUTURE_RADICAL = 'r'
     SIMPLE_PAST_RADICAL = ''
 
+@conjugates([u'bénir'])
+class BenirConjugator(IrConjugator):
+    REMOVE = 'r'
+    PAST_PARTICIPLE = '|t'
+
 class IrWithoutIssConjugator(IrConjugator):
     REMOVE = 'ir'
     ATONIC_RADICAL = ''
     TONIC_RADICAL = ''
 
 @conjugates([u'partir', u'sortir', u'ressortir|.*mentir|.*sentir|.*partir',
-             u'.*dormir', u'.*servir', 'mentir'])
+             u'.*dormir', u'.*servir', 'mentir', '.*endormir|redormir'])
 class TirConjugator(IrWithoutIssConjugator):
     REMOVE = '[tmv]ir'
     SINGULAR_RADICAL = ''
@@ -335,6 +343,25 @@ class VoirConjugator(IrWithoutIssConjugator):
     TONIC_RADICAL = 'oi'
     FUTURE_RADICAL = 'err'
     SIMPLE_PAST_RADICAL = 'i'
+
+@conjugates([u'prévoir'])
+class PrevoirConjugator(VoirConjugator):
+    REMOVE = 'oir'
+    FUTURE_RADICAL = 'oir' # Go home, French. You're drunk.
+
+@conjugates([u'.*pourvoir'])
+class PourvoirConjugator(PrevoirConjugator):
+    REMOVE = 'oir'
+    SIMPLE_PAST_RADICAL = 'u' # Now we're just getting silly.
+    
+@conjugates([])
+class PleuvoirConjugator(IrregularConjugator):
+    # Defective verb.
+    pass
+#class PleuvoirConjugator(IrWithoutIssConjugator):
+#    REMOVE = 'euvoir'
+#    PAST_PARTICIPLE = 'u'
+#    SINGULAR_RADICAL = 'eu'
 
 @conjugates([u'.*cevoir'])
 class CevoirConjugator(IrWithoutIssConjugator):
@@ -356,7 +383,7 @@ class AsseoirConjugator(IrWithoutIssConjugator):
     FUTURE_RADICAL = u'iér|oir'
     SIMPLE_PAST_RADICAL = 'i'
 
-@conjugates([u'.*venir', u'circonvenir|contrevenir|prévenir|subvenir|.*tenir'])
+@conjugates([u'.*venir', u'circonvenir|contrevenir|prévenir|subvenir|.*tenir', u'convenir'])
 class EnirConjugator(IrWithoutIssConjugator):
     REMOVE = 'enir'
     PAST_PARTICIPLE = 'enu'
@@ -409,7 +436,37 @@ class MourirConjugator(IrWithoutIssConjugator):
     FUTURE_RADICAL = 'ourr'
     SIMPLE_PAST_RADICAL = 'ouru'
 
-@conjugates([u'.*andre|.*endre|.*ondre|.*erdre|.*ordre|.*eurdre'])
+@conjugates([u'.*quérir'])
+class QuerirConjugator(IrWithoutIssConjugator):
+    REMOVE = u'érir'
+    PAST_PARTICIPLE = 'is'
+    SINGULAR_RADICAL = 'ier'
+    TONIC_RADICAL = u'ièr'
+    FUTURE_RADICAL = 'err'
+    SIMPLE_PAST_RADICAL = 'i'
+
+@conjugates([u'.*haïr'])
+class HairConjugator(IrConjugator):
+    REMOVE = u'ïr'
+    SINGULAR_RADICAL = 'i'
+
+    # The usual endings, but without the combining circumflex.
+    SIMPLE_PAST_SUFFIXES = ['s', 's', 't', u'mes', u'tes', u'rent']
+    SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
+      ['sse', 'sses', u't', 'ssions', 'ssiez', 'ssent']
+
+@conjugates([u'.*cueillir'])
+class CueillirConjugator(IrWithoutIssConjugator):
+    REMOVE = 'ir'
+    SINGULAR_RADICAL = 'e'
+    FUTURE_RADICAL = 'er'
+
+    # This works like a regular -er verb.
+    PRESENT_SUFFIXES = ['', 's', '', 'ons', 'ez', 'ent']
+    IMPERATIVE_SUFFIXES = ['', 'ons', 'ez']
+
+
+@conjugates([u'.*andre|.*endre|.*ondre|.*erdre|.*ordre|.*eurdre', u'.*ompre'])
 class ReConjugator(Conjugator):
     REMOVE = 're'
     PAST_PARTICIPLE = 'u'
@@ -435,6 +492,15 @@ class NdreConjugator(ReConjugator):
     ATONIC_RADICAL = 'gn'
     TONIC_RADICAL = 'gn'
     SIMPLE_PAST_RADICAL = 'gni'
+
+@conjugates([u'résoudre'])
+class ResoudreConjugator(ReConjugator):
+    REMOVE = 'udre'
+    PAST_PARTICIPLE = 'lu'
+    SINGULAR_RADICAL = 'u'
+    ATONIC_RADICAL = 'lv'
+    TONIC_RADICAL = 'lv'
+    SIMPLE_PAST_RADICAL = 'lu'
 
 # Verbs like dire, but without the irregular second-person plural.
 class IreConjugator(ReConjugator):
@@ -562,12 +628,30 @@ class VivreConjugator(SuivreConjugator):
     PAST_PARTICIPLE = u'écu'
     SIMPLE_PAST_RADICAL = u'écu'
 
-# TODO: Move this into a vendre-based pattern?
+@conjugates([u'.*vaincre'])
+class VaincreConjugator(ReConjugator):
+    REMOVE = 'cre'
+    SINGULAR_RADICAL = '' # See below.
+    ATONIC_RADICAL = 'qu'
+    TONIC_RADICAL = 'qu'
+    SIMPLE_PAST_RADICAL = 'qui'
+
+    # Handle this here, instead of adding complications to the suffixing
+    # algorithm.
+    PRESENT_SUFFIXES = ['cs', 'cs', 'c', 'ons', 'ez', 'ent']
+    IMPERATIVE_SUFFIXES = ['cs', 'ons', 'ez']
+
 @conjugates([u'.*foutre'])
 class FoutreConjugator(ReConjugator):
     # Literary tenses are rare.
     REMOVE = 'tre'
     SINGULAR_RADICAL = ''
+
+@conjugates([u'.*clure'])
+class ClureConjugator(ReConjugator):
+    REMOVE = 're'
+    PAST_PARTICIPLE = ''
+    SIMPLE_PAST_RADICAL = ''
 
 # Open our database.
 db = sqlite3.connect("lexique.sqlite3")
