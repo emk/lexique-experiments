@@ -269,11 +269,11 @@ class EterConjugator(ErConjugator):
     FUTURE_RADICAL = u'èter'
 
 # TODO: Why are -éger verbs broken out in the XML dataset?
-@conjugates([u'.*é([djlmnprsty])er', u'.*éger'])
+@conjugates([u'.*é([djlmnprsty])er', u'.*éger', u'.*ég([lnru])er'])
 class ErerConjugator(ErConjugator):
-    REMOVE = u'é([djlmnprstyg])er'
-    SINGULAR_RADICAL = u'è\\1e'
-    TONIC_RADICAL = u'è\\1'
+    REMOVE = u'é(g?)([djlmnprstyg])er'
+    SINGULAR_RADICAL = u'è\\1\\2e'
+    TONIC_RADICAL = u'è\\1\\2'
 
 @conjugates([u'.*e([mnprsv])er'])
 class EmerConjugator(ErConjugator):
@@ -300,6 +300,11 @@ class AyerConjugator(YerConjugator):
 class VoyerConjugator(YerConjugator):
     REMOVE = 'oyer'
     FUTURE_RADICAL = 'err'
+
+@conjugates([u'ficher'])
+class FicherConjugator(ErConjugator):
+    REMOVE = 'er'
+    PAST_PARTICIPLE = u'é|u' # By analogy to foutu.
 
 @conjugates([u'.*ir'])
 class IrConjugator(Conjugator):
@@ -526,6 +531,12 @@ class ConnaitreConjugator(ReConjugator):
     # The orthographe rectifiée de 1990 drops the cirucmflex from this
     # verb, removing this special case (and also changing the infinitive).
     PRESENT_SUFFIXES = ['s', 's', u'\u0302t', 'ons', 'ez', 'ent']
+
+@conjugates([u'.*naître'])
+class NaitreConjugator(ConnaitreConjugator):
+    REMOVE = u'aître'
+    PAST_PARTICIPLE = u'é'
+    SIMPLE_PAST_RADICAL = 'aqui'
 
 @conjugates([u'taire'])
 class AireConjugator(ReConjugator):
