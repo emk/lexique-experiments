@@ -178,6 +178,76 @@ class Conjugator(object):
         suffixes = self.subjunctive_imperfect_suffixes()
         return self._simple_forms(past_r, suffixes)
 
+    # Attach a subject pronoun to a verb form.
+    def _prepend_pronoun(self, pronoun, form):
+        nf = normalize('NFD', form)
+        if pronoun == 'je':
+            # TODO: Handle 'h meut'.
+            if re.match('^[aeiouh]', nf):
+                return "j'" + form
+        return pronoun + " " + form
+
+    # Attach a list of pronouns to a list of verb forms.
+    def _zip_pronouns(self, pronouns, forms):
+        result = []
+        for p, vs in zip(pronouns, forms):
+            variants = []
+            for v in vs:
+                variants.append(self._prepend_pronoun(p, v))
+            result.append('/'.join(variants))
+        return result
+
+    # Generate a list of interesting forms, based on what's actually
+    # overriden in this class.  This assumes that the reader knows the
+    # basics of French verbs.
+    def summarize_forms(self, infinitive):
+        # Accumulate forms here.
+        interesting = []
+        def add(pronouns, forms):
+            zipped = self._zip_pronouns(pronouns, forms)
+            interesting.extend(zipped)
+
+        # Our default pronouns.  We use the masculine forms because they're
+        # shorter, and we want to show these summaries in confined spaces.
+        pronouns = ['je', 'tu', 'il', 'nous', 'vous', 'ils']
+
+        # Determine which fields have been customized.
+        d = self.__class__.__dict__
+        def customizes(key):
+            return key in d
+
+        # Don't try to figure out the auxiliary verb for the past participle.
+        if customizes('PAST_PARTICIPLE'):
+            interesting.append('(p.p.) ' +
+                               '/'.join(self.past_participles(infinitive)))
+
+        # Show only as many present-tense forms as we need.
+        present = self.present(infinitive)
+        if customizes('PRESENT_SUFFIXES'):
+            add(pronouns, present)
+        else:
+            if customizes('SINGULAR_RADICAL'):
+                add(pronouns[1:2], present[1:2])
+            if customizes('ATONIC_RADICAL'):
+                add(pronouns[3:4], present[3:4])
+            if customizes('TONIC_RADICAL'):
+                add(pronouns[5:6], present[5:6])
+
+        # We can infer all future tense forms from one example.
+        if 'FUTURE_RADICAL' in d:
+            add(pronouns[2:3], self.future(infinitive)[2:3])
+
+        # Show a few simple past forms to give the idea.  The rest can
+        # be looked up on the rare chance they're needed.
+        if customizes('SIMPLE_PAST_SUFFIXES'):
+            add(['(p.s.) il'], self.simple_past(infinitive)[2:3])
+            add(pronouns[5:6], self.simple_past(infinitive)[5:6])
+        elif customizes('SIMPLE_PAST_RADICAL'):
+            add(['(p.s.) il'], self.simple_past(infinitive)[2:3])
+
+        # Return our interesting forms.
+        return ', '.join(interesting)
+
     # Called internally to compare verb forms with a Prototype object.
     def _assert_matches(self, prototype, method_name):
         expected = getattr(prototype, 'example_' + method_name)()

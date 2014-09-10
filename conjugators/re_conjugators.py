@@ -64,6 +64,10 @@ class DireConjugator(IreConjugator):
         present = self.present(infinitive)
         return [present[i] for i in [1,3,4]]
 
+    # Provide a custom summary.
+    def summarize_forms(self, infinitive):
+        return 'vous dites BUT vous interdisez'
+
 @conjugates([u'.*lire'])
 class LireConjugator(IreConjugator):
     REMOVE = 'ire'
@@ -164,6 +168,10 @@ class PlaireConjugator(AireConjugator):
         inherited = super(PlaireConjugator, self).present(infinitive)
         inherited[2] = [re.sub('ait$', u'aît', inherited[2][0])] + inherited[2]
         return inherited
+
+    # Provide a custom summary.
+    def summarize_forms(self, infinitive):
+        return 'il plaît/il plait'
 
 @conjugates([u'.*vivre'])
 class VivreConjugator(SuivreConjugator):

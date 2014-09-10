@@ -10,10 +10,15 @@ class IrregularConjugator(Conjugator):
     def name(self):
         return self.label
 
+    def summarize_forms(self, infinitive):
+        return "(irregular)"
+
     def assert_matches_prototype(self, prototype):
         pass
+
 
 # TODO: Defective verbs to handle later.
 @conjugates([u'.*pleuvoir', u'parfaire', u'.*raire', u'adirer|douer'])
 class DefectiveConjugator(IrregularConjugator):
-    pass
+    def summarize_forms(self, infinitive):
+        return "(defective)"

@@ -34,3 +34,5 @@ for row in db.execute(query):
 for p in prototypes:
     conj = conjugators.BY_LABEL[p.label]
     conj.assert_matches_prototype(p)
+    print("====", p.label)
+    print(conj.summarize_forms(p.infinitive))
