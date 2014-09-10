@@ -31,9 +31,8 @@ class Conjugator(object):
     SUBJUNCTIVE_IMPERFECT_SUFFIXES = \
       ['sse', 'sses', u'\u0302t', 'ssions', 'ssiez', 'ssent']
 
-    # Record the label under which we were registered.
-    def __init__(self, label=None):
-        self.label = label
+    # Initialize this conjugator.
+    def __init__(self):
         self.example_verb = None
 
     # Return a reasonable name for this conjugator.
@@ -282,13 +281,26 @@ class UnimplementedConjugator(Conjugator):
         print("Unimplemented: %s (%s)" % (self.name(), prototype.label))
         sys.exit(1)
 
+# A list of all known conjugators.
+ALL = []
+
 # Look up conjugators by verb label.
 BY_LABEL = defaultdict(UnimplementedConjugator)
 
-# A decorator for subclasses of Conjugator, to help register them.
-def conjugates(labels):
+# A decorator for subclasses of Conjugator, to help register them.  If you
+# pass in 'independent_conjugators=True', it will create seperate instances
+# for each prototype label.
+def conjugates(labels, independent_conjugators=False):
     def wrap(conjugator_class):
-        for label in labels:
-            BY_LABEL[label] = conjugator_class(label)
+        if independent_conjugators:
+            for label in labels:
+                conjugator = conjugator_class()
+                ALL.append(conjugator)
+                BY_LABEL[label] = conjugator
+        else:
+            conjugator = conjugator_class()
+            ALL.append(conjugator)
+            for label in labels:
+                BY_LABEL[label] = conjugator
         return conjugator_class
     return wrap

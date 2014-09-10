@@ -30,9 +30,11 @@ for row in db.execute(query):
     if conj.example_verb is None:
         conj.example_verb = lemme
 
+for conj in conjugators.ALL:
+    print("====", conj.name())
+    print(conj.summarize_forms())
+
 # Iterate over our prototypes until we hit a mismatch.
 for p in prototypes:
     conj = conjugators.BY_LABEL[p.label]
     conj.assert_matches_prototype(p)
-    print("====", conj.name())
-    print(conj.summarize_forms())

@@ -5,7 +5,7 @@
 #   http://www.french-linguistics.co.uk/grammar/irregular_verbs_paradigms.shtml
 
 # Get our registry.
-from conjugator import BY_LABEL
+from conjugator import BY_LABEL, ALL
 
 # Load each group of conjugators.
 import irregular_conjugators
