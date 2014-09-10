@@ -19,20 +19,20 @@ SELECT prototype FROM verbe
 for row in db.execute(query):
     prototypes.append(prototype.BY_LABEL[row[0]])
 
-# Load example verbs for our prototypes.
+# For each conjugator, use the highest-frequency verb as an example.
 query = """
 SELECT prototype, lemme FROM verbe
   WHERE prototype IS NOT NULL
   ORDER BY freqfilms2 DESC"""
 for row in db.execute(query):
     label, lemme = row
-    p = prototype.BY_LABEL[label]
-    if p.example is None:
-        p.example = lemme
+    conj = conjugators.BY_LABEL[label]
+    if conj.example_verb is None:
+        conj.example_verb = lemme
 
 # Iterate over our prototypes until we hit a mismatch.
 for p in prototypes:
     conj = conjugators.BY_LABEL[p.label]
     conj.assert_matches_prototype(p)
-    print("====", p.label)
-    print(conj.summarize_forms(p.infinitive))
+    print("====", conj.name())
+    print(conj.summarize_forms())

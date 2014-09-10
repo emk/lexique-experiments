@@ -65,7 +65,7 @@ class DireConjugator(IreConjugator):
         return [present[i] for i in [1,3,4]]
 
     # Provide a custom summary.
-    def summarize_forms(self, infinitive):
+    def summarize_forms(self):
         return 'vous dites BUT vous interdisez'
 
 @conjugates([u'.*lire'])
@@ -98,7 +98,6 @@ class RireConjugator(IreConjugator):
     ATONIC_RADICAL = ''
     TONIC_RADICAL = ''
 
-# Neil Coffey says this is similar to the dormir pattern.
 @conjugates([u'.*suivre'])
 class SuivreConjugator(ReConjugator):
     REMOVE = 'vre'
@@ -170,7 +169,7 @@ class PlaireConjugator(AireConjugator):
         return inherited
 
     # Provide a custom summary.
-    def summarize_forms(self, infinitive):
+    def summarize_forms(self):
         return 'il plaît/il plait'
 
 @conjugates([u'.*vivre'])

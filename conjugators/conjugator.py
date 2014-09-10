@@ -34,11 +34,12 @@ class Conjugator(object):
     # Record the label under which we were registered.
     def __init__(self, label=None):
         self.label = label
+        self.example_verb = None
 
     # Return a reasonable name for this conjugator.
     def name(self):
-        name = self.__class__.__name__.replace('Conjugator', '').lower()
-        return name or None
+        from_class = self.__class__.__name__.replace('Conjugator', '').lower()
+        return self.example_verb or from_class or None
 
     # Search up the class hierarchy for the specified key.  If it is found,
     # optionally return a related key from the same level of the class
@@ -200,7 +201,9 @@ class Conjugator(object):
     # Generate a list of interesting forms, based on what's actually
     # overriden in this class.  This assumes that the reader knows the
     # basics of French verbs.
-    def summarize_forms(self, infinitive):
+    def summarize_forms(self):
+        infinitive = self.example_verb
+
         # Accumulate forms here.
         interesting = []
         def add(pronouns, forms):
@@ -275,11 +278,8 @@ class Conjugator(object):
 
 # Used by default for verb forms we don't handle yet.
 class UnimplementedConjugator(Conjugator):
-    def name(self):
-        return None
-
     def assert_matches_prototype(self, prototype):
-        print("Unimplemented: %s (%s)" % (prototype.example, prototype.label))
+        print("Unimplemented: %s (%s)" % (self.name(), prototype.label))
         sys.exit(1)
 
 # Look up conjugators by verb label.

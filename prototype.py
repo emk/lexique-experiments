@@ -25,7 +25,6 @@ class Prototype:
         self.simparfait = element.get('SIMPARFAIT')
         self.imperatif = element.get(u'IMPÉRATIF')
         self.condition = element.get('CONDITION')
-        self.example = None # May be filled in by our users.
 
     def matches(self, infinitive):
         return self.regex.match(infinitive)
