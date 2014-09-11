@@ -289,7 +289,7 @@ class Conjugator(object):
         elif parent.name():
             return parent.name()
         else:
-            return '???'
+            raise RuntimeError('No name for base form: %s' % parent)
 
     # Summarize everything interesting we know about this class.
     def summarize(self):

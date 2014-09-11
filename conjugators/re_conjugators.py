@@ -44,8 +44,7 @@ class ResoudreConjugator(ReConjugator):
     SIMPLE_PAST_RADICAL = 'lu'
 
 # Verbs like dire, but without the irregular second-person plural.
-# TODO: Make sure interdire, etc., get moved into this category.  And
-# fix the rules in our XML database to be correct.
+@conjugates([u'.*dire'])
 class IreConjugator(ReConjugator):
     REMOVE = 're'
     PAST_PARTICIPLE = 't'
@@ -53,7 +52,7 @@ class IreConjugator(ReConjugator):
     TONIC_RADICAL = 's'
     SIMPLE_PAST_RADICAL = ''
 
-@conjugates([u'.*dire'])
+@conjugates([u'dire|redire'])
 class DireConjugator(IreConjugator):
     # Present 2PL is 'dites'.
     def present(self, infinitive):
@@ -68,7 +67,7 @@ class DireConjugator(IreConjugator):
 
     # Provide a custom summary.
     def summarize_forms(self):
-        return 'vous dites BUT vous interdisez'
+        return 'vous dites'
 
 @conjugates([u'.*lire'])
 class LireConjugator(IreConjugator):
