@@ -6,7 +6,29 @@ from collections import defaultdict
 from unicodedata import normalize
 import re
 
+# A decorator which allows only one instance of each subclass to be
+# created.  We do things like this because we're deliberately confusing
+# classes and intances, which allows us to store quite a few variables like
+# PAST_PARTICIPLE on the class, but still easy override methods and update
+# variables like example_verb at runtime.
+#
+# This is a bit of a weird design, but it just fell out.  And hey, I need
+# to find out how metaprogramming works in Python, anyway.
+def per_subclass_singleton(klass):
+    def new(subclass):
+        if not '_instance' in subclass.__dict__:
+            subclass._instance = object.__new__(subclass)
+        return subclass._instance
+    def instance(subclass):
+        if '_instance' in subclass.__dict__:
+            return subclass._instance
+        return None
+    klass.__new__ = staticmethod(new)
+    klass.instance = classmethod(instance)
+    return klass
+
 # Conjugate a group of verbs.
+@per_subclass_singleton
 class Conjugator(object):
     REMOVE = None
     PAST_PARTICIPLE = None
@@ -35,10 +57,19 @@ class Conjugator(object):
     def __init__(self):
         self.example_verb = None
 
+    # Find the conjugator we're based off of.
+    def parent_conjugator(self):
+        assert(self.__class__ != Conjugator)
+        return self.__class__.__base__.instance()
+
+    # Let the conjugator know about a verb.
+    def register_verb(self, infinitive):
+        if self.example_verb is None:
+            self.example_verb = infinitive
+
     # Return a reasonable name for this conjugator.
     def name(self):
-        from_class = self.__class__.__name__.replace('Conjugator', '').lower()
-        return self.example_verb or from_class or None
+        return self.example_verb
 
     # Search up the class hierarchy for the specified key.  If it is found,
     # optionally return a related key from the same level of the class
@@ -250,6 +281,16 @@ class Conjugator(object):
         # Return our interesting forms.
         return ', '.join(interesting)
 
+    # Summarize everything interesting we know about this class.
+    def summarize(self):
+        forms = self.summarize_forms()
+        parent = self.parent_conjugator()
+        if parent:
+            like = parent.example_verb
+            if like:
+                return u"Like %s, except: %s" % (like, forms)
+        return forms
+
     # Called internally to compare verb forms with a Prototype object.
     def _assert_matches(self, prototype, method_name):
         expected = getattr(prototype, 'example_' + method_name)()
@@ -275,8 +316,13 @@ class Conjugator(object):
         self._assert_matches(prototype, 'simple_past')
         self._assert_matches(prototype, 'subjunctive_imperfect')
 
-# Used by default for verb forms we don't handle yet.
+# Used by default for verb forms we don't handle yet.  Because of the
+# per_subclass_singleton code, there's only one instance of this class
+# shared between all unknown verbs.
 class UnimplementedConjugator(Conjugator):
+    def register_verb(self, infinitive):
+        None
+
     def assert_matches_prototype(self, prototype):
         print("Unimplemented: %s (%s)" % (self.name(), prototype.label))
         sys.exit(1)
@@ -290,17 +336,11 @@ BY_LABEL = defaultdict(UnimplementedConjugator)
 # A decorator for subclasses of Conjugator, to help register them.  If you
 # pass in 'independent_conjugators=True', it will create seperate instances
 # for each prototype label.
-def conjugates(labels, independent_conjugators=False):
+def conjugates(labels):
     def wrap(conjugator_class):
-        if independent_conjugators:
-            for label in labels:
-                conjugator = conjugator_class()
-                ALL.append(conjugator)
-                BY_LABEL[label] = conjugator
-        else:
-            conjugator = conjugator_class()
-            ALL.append(conjugator)
-            for label in labels:
-                BY_LABEL[label] = conjugator
+        conjugator = conjugator_class()
+        ALL.append(conjugator)
+        for label in labels:
+            BY_LABEL[label] = conjugator
         return conjugator_class
     return wrap

@@ -170,7 +170,7 @@ class PlaireConjugator(AireConjugator):
 
     # Provide a custom summary.
     def summarize_forms(self):
-        return 'il plaît/il plait'
+        return u'il plaît/il plait'
 
 @conjugates([u'.*vivre'])
 class VivreConjugator(SuivreConjugator):

@@ -27,12 +27,10 @@ SELECT prototype, lemme FROM verbe
 for row in db.execute(query):
     label, lemme = row
     conj = conjugators.BY_LABEL[label]
-    if conj.example_verb is None:
-        conj.example_verb = lemme
+    conj.register_verb(lemme)
 
 for conj in conjugators.ALL:
-    print("====", conj.name())
-    print(conj.summarize_forms())
+    print("%s: %s" % (conj.name(), conj.summarize()))
 
 # Iterate over our prototypes until we hit a mismatch.
 for p in prototypes:
