@@ -8,7 +8,7 @@ from conjugator import *
 @conjugates([u'.*andre|.*endre|.*ondre|.*erdre|.*ordre|.*eurdre', u'.*ompre'])
 class ReConjugator(Conjugator):
     NAME = '-re'
-    
+
     REMOVE = 're'
     PAST_PARTICIPLE = 'u'
     SINGULAR_RADICAL = ''
@@ -81,24 +81,28 @@ class UireConjugator(IreConjugator):
     REMOVE = 're'
     SIMPLE_PAST_RADICAL = 'si'
 
-@conjugates([u'.*crire'])
-class CrireConjugator(IreConjugator):
-    REMOVE = 're'
-    ATONIC_RADICAL = 'v'
-    TONIC_RADICAL = 'v'
-    SIMPLE_PAST_RADICAL = 'vi'
-
 @conjugates([u'suffire'])
 class SuffireConjugator(IreConjugator):
     REMOVE = 're'
     PAST_PARTICIPLE = ''
 
+# Not enough in common with other -ire verbs to lump.
+@conjugates([u'.*crire'])
+class CrireConjugator(ReConjugator):
+    REMOVE = 're'
+    PAST_PARTICIPLE = 't'
+    ATONIC_RADICAL = 'v'
+    TONIC_RADICAL = 'v'
+    SIMPLE_PAST_RADICAL = 'vi'
+
+# Not enough in common with other -ire verbs to lump.
 @conjugates([u'.*rire'])
-class RireConjugator(IreConjugator):
+class RireConjugator(ReConjugator):
     REMOVE = 're'
     PAST_PARTICIPLE = ''
     ATONIC_RADICAL = ''
     TONIC_RADICAL = ''
+    SIMPLE_PAST_RADICAL = ''
 
 @conjugates([u'.*suivre'])
 class SuivreConjugator(ReConjugator):
@@ -111,7 +115,7 @@ class VivreConjugator(SuivreConjugator):
     REMOVE = 'ivre'
     PAST_PARTICIPLE = u'écu'
     SIMPLE_PAST_RADICAL = u'écu'
-    
+
 @conjugates([u'.*croire'])
 class CroireConjugator(ReConjugator):
     REMOVE = 'oire'
