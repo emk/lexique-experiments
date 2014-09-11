@@ -55,24 +55,22 @@ class ValoirConjugator(IrregularConjugator):
 class FaillirConjugator(IrregularConjugator):
     pass
 
-# TODO: Defective verbs to handle later.
-@conjugates([u'.*pleuvoir', u'parfaire', u'.*raire', u'adirer|douer'])
 class DefectiveConjugator(IrregularConjugator):
     def summarize(self):
         return "(defective)"
 
-@conjugates(u'.*pleuvoir')
+@conjugates([u'.*pleuvoir'])
 class PleuvoirConjugator(DefectiveConjugator):
     pass
 
-@conjugates(u'parfaire')
+@conjugates([u'parfaire'])
 class ParfaireConjugator(DefectiveConjugator):
     pass
 
-@conjugates(u'.*raire')
+@conjugates([u'.*raire'])
 class RaireConjugator(DefectiveConjugator):
     pass
 
-@conjugates(u'adirer|douer')
+@conjugates([u'adirer|douer'])
 class DouerConjugator(DefectiveConjugator):
     pass
