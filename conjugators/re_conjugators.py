@@ -106,6 +106,12 @@ class SuivreConjugator(ReConjugator):
     PAST_PARTICIPLE = 'vi'
     SINGULAR_RADICAL = ''
 
+@conjugates([u'.*vivre'])
+class VivreConjugator(SuivreConjugator):
+    REMOVE = 'ivre'
+    PAST_PARTICIPLE = u'écu'
+    SIMPLE_PAST_RADICAL = u'écu'
+    
 @conjugates([u'.*croire'])
 class CroireConjugator(ReConjugator):
     REMOVE = 'oire'
@@ -173,12 +179,6 @@ class PlaireConjugator(AireConjugator):
     # Provide a custom summary.
     def summarize_forms(self):
         return u'il plaît/il plait'
-
-@conjugates([u'.*vivre'])
-class VivreConjugator(SuivreConjugator):
-    REMOVE = 'ivre'
-    PAST_PARTICIPLE = u'écu'
-    SIMPLE_PAST_RADICAL = u'écu'
 
 @conjugates([u'.*vaincre'])
 class VaincreConjugator(ReConjugator):

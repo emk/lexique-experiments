@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import sqlite3
-import prototype
+import sys
+import codecs
 
+import sqlite3
+
+import prototype
 import conjugators
+
+# Python 2.7 is really unbearably stupid about Unicode.  Here is one of the
+# bigger patches we need to make: http://stackoverflow.com/questions/492483/
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 # Open our database.
 db = sqlite3.connect("lexique.sqlite3")

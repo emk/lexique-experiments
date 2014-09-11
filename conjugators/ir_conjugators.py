@@ -19,7 +19,7 @@ class IssConjugator(Conjugator):
     TONIC_RADICAL = 'ss'
     FUTURE_RADICAL = 'r'
     SIMPLE_PAST_RADICAL = ''
-    
+
 @conjugates([u'bénir'])
 class BenirConjugator(IssConjugator):
     REMOVE = 'r'
@@ -39,6 +39,8 @@ class HairConjugator(IssConjugator):
 # inserted in the tonic and atonic radicals.  All these verbs are actually
 # irregular in some small way.
 class IrConjugator(IssConjugator):
+    NAME = '-ir'
+
     REMOVE = 'ir'
     ATONIC_RADICAL = ''
     TONIC_RADICAL = ''

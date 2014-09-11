@@ -284,9 +284,12 @@ class Conjugator(object):
     def like(self):
         assert(self.__class__ != Conjugator)
         parent = self.__class__.__base__
-        if parent:
+        if parent == Conjugator:
+            return None
+        elif parent.name():
             return parent.name()
-        return None
+        else:
+            return '???'
 
     # Summarize everything interesting we know about this class.
     def summarize(self):
