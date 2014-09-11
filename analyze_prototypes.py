@@ -14,7 +14,12 @@ import conjugators
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 # Open our database.
-db = sqlite3.connect("lexique.sqlite3")
+conn = sqlite3.connect("lexique.sqlite3")
+
+# Register all the verbs found in our database, and dump some information.
+conjugators.register_verbs_from_database(conn)
+for conj in conjugators.ALL:
+    print("%s: %s" % (conj.name(), conj.summarize()))
 
 # Order our prototypes by coverage.
 prototypes = []
@@ -23,21 +28,8 @@ SELECT prototype FROM verbe
   WHERE prototype IS NOT NULL
   GROUP BY prototype
   ORDER BY SUM(freqfilms2) DESC"""
-for row in db.execute(query):
+for row in conn.execute(query):
     prototypes.append(prototype.BY_LABEL[row[0]])
-
-# For each conjugator, use the highest-frequency verb as an example.
-query = """
-SELECT prototype, lemme FROM verbe
-  WHERE prototype IS NOT NULL
-  ORDER BY freqfilms2 DESC"""
-for row in db.execute(query):
-    label, lemme = row
-    conj = conjugators.BY_LABEL[label]
-    conj.register_verb(lemme)
-
-for conj in conjugators.ALL:
-    print("%s: %s" % (conj.name(), conj.summarize()))
 
 # Iterate over our prototypes until we hit a mismatch.
 for p in prototypes:

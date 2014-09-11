@@ -8,21 +8,34 @@ import prototype
 import conjugators
 
 # Open our database.
-db = sqlite3.connect("lexique.sqlite3")
+conn = sqlite3.connect("lexique.sqlite3")
 
-# Figure out what protype goes with each verb.
+# Figure out what prototype goes with each verb.
 print("Determining verb prototypes...", file=sys.stderr)
 verb_prototypes = []
-for row in db.execute('SELECT lemme FROM verbe'):
+for row in conn.execute('SELECT lemme FROM verbe'):
     verb = row[0]
     for p in prototype.PROTOTYPES:
         if p.matches(verb):
-            conj = conjugators.BY_LABEL[p.label]
-            verb_prototypes.append((p.label, conj.name(), p.aux, verb))
+            verb_prototypes.append((p.label, p.aux, verb))
             break
+sql = "UPDATE verbe SET prototype = ?, aux = ? WHERE lemme = ?"
+conn.executemany(sql, verb_prototypes)
 
-# Update all our our verb fields in one pass.
-print("Storing verb prototypes...", file=sys.stderr)
-sql = "UPDATE verbe SET prototype = ?, conjugator = ?, aux = ? WHERE lemme = ?"
-db.executemany(sql, verb_prototypes)
-db.commit()
+# Give nice names to our conjugators.
+print("Determining verb conjugators...", file=sys.stderr)
+conjugators.register_verbs_from_database(conn)
+conn.executemany("INSERT INTO conjugaison VALUES (?, ?, ?)",
+                 [(c.name(), c.like(), c.summarize()) for c in conjugators.ALL])
+
+# Figure out what conjugator goes with each verb.
+print("Matching conjugators to verbs...", file=sys.stderr)
+verb_conjugators = []
+for row in conn.execute('SELECT DISTINCT prototype FROM verbe'):
+    label = row[0]
+    verb_conjugators.append((conjugators.BY_LABEL[label].name(), label))
+conn.executemany('UPDATE verbe SET conjugaison = ? WHERE prototype = ?',
+                 verb_conjugators)
+
+# Commit our changes.
+conn.commit()

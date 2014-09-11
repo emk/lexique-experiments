@@ -9,8 +9,8 @@ from IPython.display import HTML
 colors = brewer2mpl.get_map('Dark2', 'Qualitative', 8).mpl_colors
 
 # Connect to the database.
-db = sqlite3.connect("lexique.sqlite3")
+conn = sqlite3.connect("lexique.sqlite3")
 
 # Run a simple SQL command and return the result.
 def sql(command, **kw):
-    return pd.read_sql(command, db, **kw)
+    return pd.read_sql(command, conn, **kw)

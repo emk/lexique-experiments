@@ -75,6 +75,12 @@ CREATE UNIQUE INDEX lemme_simple_lemme ON lemme_simple (lemme);
 CREATE INDEX lemme_simple_freqfilms2 ON lemme_simple (freqfilms2);
 CREATE INDEX lemme_simple_freqlivres ON lemme_simple (freqlivres);
 
+CREATE TABLE conjugaison (
+  nom TEXT,
+  comme TEXT,
+  resume TEXT
+);
+
 CREATE TABLE verbe AS
   SELECT lemme,
          CASE
@@ -84,7 +90,7 @@ CREATE TABLE verbe AS
            WHEN lemme LIKE '%re' THEN 're'
          END AS groupe,
          CAST(NULL AS TEXT) AS prototype,
-         CAST(NULL AS TEXT) AS conjugator,
+         CAST(NULL AS TEXT) AS conjugaison,
          CAST(NULL AS TEXT) AS aux,
          SUM(freqfilms2) AS freqfilms2,
          SUM(freqlivres) AS freqlivres

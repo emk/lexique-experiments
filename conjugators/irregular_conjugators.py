@@ -5,6 +5,9 @@ from conjugator import *
 # This class doesn't actually conjugate anything.  It just says it does.
 # We use this for verbs which are truly irregular.
 class IrregularConjugator(Conjugator):
+    def like(self):
+        return None
+
     def summarize(self):
         return "(irregular)"
 
