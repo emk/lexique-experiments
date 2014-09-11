@@ -11,7 +11,7 @@ lexique.sqlite3: createdb.sql lexique.txt
 
 # Delete generated files.
 clean:
-	rm -f lexique.txt lexique.sqlite3
+	rm -f lexique.txt lexique.sqlite3 conjugators.tsv
 
 # These rules do not correspond to actual files, so mark them as such.
 .PHONY: all clean

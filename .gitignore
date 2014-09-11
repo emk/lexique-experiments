@@ -2,3 +2,4 @@
 /lexique.sqlite3
 /lexique.txt
 *.pyc
+/conjugators.tsv
