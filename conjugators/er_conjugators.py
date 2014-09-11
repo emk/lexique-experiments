@@ -8,6 +8,8 @@ from conjugator import *
 @conjugates([u'.*er', u'arriver|entrer|rentrer|rester|retomber|tomber',
              u'.*ger', u'.*cer'])
 class ErConjugator(Conjugator):
+    NAME = '-er'
+
     REMOVE = 'er'
     PAST_PARTICIPLE = u'é'
     SINGULAR_RADICAL = 'e'

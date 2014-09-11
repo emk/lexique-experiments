@@ -10,6 +10,8 @@ from conjugator import *
 # rules.
 @conjugates([u'.*ir'])
 class IssConjugator(Conjugator):
+    NAME = '-ir (-iss-)'
+
     REMOVE = 'r'
     PAST_PARTICIPLE = ''
     SINGULAR_RADICAL = ''

@@ -57,19 +57,18 @@ class Conjugator(object):
     def __init__(self):
         self.example_verb = None
 
-    # Find the conjugator we're based off of.
-    def parent_conjugator(self):
-        assert(self.__class__ != Conjugator)
-        return self.__class__.__base__.instance()
-
     # Let the conjugator know about a verb.
     def register_verb(self, infinitive):
         if self.example_verb is None:
             self.example_verb = infinitive
 
     # Return a reasonable name for this conjugator.
-    def name(self):
-        return self.example_verb
+    @classmethod
+    def name(klass):
+        if 'NAME' in klass.__dict__:
+            return klass.NAME
+        elif klass.instance() and klass.instance().example_verb:
+            return klass.instance().example_verb
 
     # Search up the class hierarchy for the specified key.  If it is found,
     # optionally return a related key from the same level of the class
@@ -281,14 +280,20 @@ class Conjugator(object):
         # Return our interesting forms.
         return ', '.join(interesting)
 
+    # Return a name for the most similar conjugation we can find.
+    def like(self):
+        assert(self.__class__ != Conjugator)
+        parent = self.__class__.__base__
+        if parent:
+            return parent.name()
+        return None
+
     # Summarize everything interesting we know about this class.
     def summarize(self):
         forms = self.summarize_forms()
-        parent = self.parent_conjugator()
-        if parent:
-            like = parent.example_verb
-            if like:
-                return u"Like %s, except: %s" % (like, forms)
+        like = self.like()
+        if like:
+            return u"Like %s, except: %s" % (like, forms)
         return forms
 
     # Called internally to compare verb forms with a Prototype object.

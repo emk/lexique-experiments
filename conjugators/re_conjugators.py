@@ -7,6 +7,8 @@ from conjugator import *
 
 @conjugates([u'.*andre|.*endre|.*ondre|.*erdre|.*ordre|.*eurdre', u'.*ompre'])
 class ReConjugator(Conjugator):
+    NAME = '-re'
+    
     REMOVE = 're'
     PAST_PARTICIPLE = 'u'
     SINGULAR_RADICAL = ''
