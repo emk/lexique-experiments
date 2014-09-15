@@ -4,3 +4,5 @@
 *.pyc
 /conjugators.tsv
 /public/*.css
+/node_modules
+/bower_components
