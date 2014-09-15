@@ -3,3 +3,4 @@
 /lexique.txt
 *.pyc
 /conjugators.tsv
+/public/*.css

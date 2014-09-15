@@ -1,0 +1,29 @@
+body {
+}
+
+td, th { padding-right: 1em; }
+
+.radical {
+  border: 1px solid black;
+  padding: 0 2px;
+  border-radius: 3px;
+
+  &.name { font-variant: small-caps; }
+
+  .radical-color(@base, @lighten: 45%) {
+    color: @base;
+    border-color: @base;
+    background-color: lighten(@base, @lighten);
+  }
+
+  &.singular { .radical-color(blue); }
+  &.unstressed { .radical-color(red); }
+  &.stressed { .radical-color(#cc00cc, 55%); }
+  &.participle { .radical-color(green, 65%); }
+  &.future { .radical-color(#cc6600, 55%); }
+  &.past { .radical-color(#444, 65%); }
+}
+
+.ending {
+  font-style: italic;
+}
